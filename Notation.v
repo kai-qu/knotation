@@ -96,6 +96,39 @@ Still not clear on why all of these are drawable.
 Not drawable = must draw a loop around a region containing an odd number of
 crossings? *)
 
+(* Some knots with four crossings:
+
+Combinatorially: How many knots are there that avoid self loops?
+each self loop decreases the crossing number
+
+1 3 5 7 ... n - 1
+( permutation of 2 4 6 8 ... n)
+where no (n, n+1) OR (1, n) exists
+
+what about reidenmeister moves on this notation??
+what is the sub-permutation/kknot addition thing?
+
+I drew 
+1 3 5 7
+6 8 2 4
+and wrote out each connection I drew, the number of "free" ends enclosed,
+and whether I had a choice in the drawing. For my diagram:
+  
+    | enc/enc | choice
+===================
+i   | 2/2     | yes
+ii  | 0/2     | yes
+iii | 2/0     | yes
+iv  | 0       | no
+v   | 0       | no
+
+hypothesis: 
+it's not possible to make choices that enclose an odd number?
+  WHY always even number?
+if this isn't the distinguishing factor, then what makes one drawable and another not drawable?
+the encs always add up to 2*number of crossings?
+ *)
+
 (* --------------- *)
 (* Conway notation *)
 
