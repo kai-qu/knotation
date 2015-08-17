@@ -128,6 +128,14 @@ it's not possible to make choices that enclose an odd number?
 if this isn't the distinguishing factor, then what makes one drawable and another not drawable?
 the encs always add up to 2*number of crossings?
  *)
+ 
+ (* Dowker notation drawability: I think the two conditions are necessary and sufficient
+ 1. evens and odds paired
+ 2. every loop encloses numerically consecutive numbers? (is there any condition on the numbers attached on the other side?
+ 
+ TODO clarify/algo for the latter
+ TODO look at the knot theory in isabelle paper/thesis
+ *)
 
 (* --------------- *)
 (* Conway notation *)
