@@ -1,16 +1,6 @@
 import Graphics.Gloss
 import Graphics.Gloss.Interface.Pure.Game
 
-data Direction = Horiz | Vert
-data Mode = Make | Delete | Bind | Rotate
-data Crossing = Crossing { id :: Int
-                         , dir :: Direction
-                         , pt :: Point
-                         }
-data World = World { mode :: Mode
-                   , state :: [Crossing]
-                   }
-
 main
         = play
           (InWindow
@@ -21,51 +11,88 @@ main
         50
         initWorld
         pictures
-        handler
+        (\e -> \p -> p) -- no handler
         (\t -> \w -> w) -- no timestep
 
+{- Types:
+tangles: e.g. 10***.3:1.1.1.3.-4......
+(polyhedra)
+
+Data:
+Basic tangles 0, infinity, -1, 1
+Basic polyhedron 1*
+
+Functions I need:
+twist :: nat -> Picture (or [Picture]?)
+
+reverseCrossings :: Picture -> Picture ([Picture] -> [Picture])
+
+rotate90CW :: Picture -> Picture ([Picture] -> [Picture])
+
+connectTangles :: Picture -> Picture -> Picture
+
+embedInPolyhedron :: Picture -> polyhedron -> Picture 
+(later, multiple tangles = [Picture] -> labeled polyhedron -> Picture)
+
+renderTangle :: tangle -> Picture
+
+renderKnot :: [tangle] -> polyhedron -> Picture
+or (conway notation = (Polyhedron, [Tangle]) where polyhedron is a number
+that indexes a list of the polyhedron pictures / draws the polyhedron around
+the tangles, and Tangle is a list of numbers with combinators like -, ,?
+-}
+
+type Twist = Int
+type Polyhedron = Int
+type ConwayNotation = ([Twist], Polyhedron)
+
+trefoil :: ConwayNotation
+trefoil = ([3], 1)
+
+figure8 :: ConwayNotation
+figure8 = ([2, 2], 1)
+
+stevedore :: ConwayNotation
+stevedore = ([4, 2], 1)
+
+six_2 :: ConwayNotation
+six_2 = ([3, 1, 2], 1)
+
+six_3 :: ConwayNotation
+six_3 = ([2, 1, 1, 2], 1)
+
+foo :: [Picture]
+foo = [Circle 200]
+
+embedIn :: Polyhedron -> [Picture] -> [Picture]
+embedIn polyhedron tanglePic = foo
+
+-- should probably return other stuff like where the relevant endpoints are
+renderTangle :: [Twist] -> [Picture]
+renderTangle twists = foo
+
+renderKnot :: ConwayNotation -> [Picture]
+renderKnot (tangle, polyhedron) = embedIn polyhedron $ renderTangle tangle
+
+-- TODO: commas, polyhedra
+
 initWorld :: [Picture]
-initWorld = let thickness = 20 in
-          let twist1 = map (rotate 70) [Arc 0 160 100, Arc 0 160 (100 + thickness)] in
-          let twist2 = map (translate 0 (200 + thickness) . rotate 70) [Arc 180 340 100, Arc 180 340 (100 + thickness)] in
+initWorld = renderKnot trefoil
+
+-- WHEREIN: a series of confusing and unpleasant operations happens to data
+testTwist :: [Picture]
+testTwist = let thickness = 15 in
+          let twist1 = map (rotate 70) [ThickArc 0 160 100 thickness {-, ThickArc 0 160 (100 + thickness) thickness -}] in
+          let twist2 = map (translate 0 200 . rotate 70) 
+                       [ThickArc 180 340 100 thickness {-, ThickArc 180 340 (100 + thickness) thickness -}] in
           let twist = twist1 ++ twist2 in
           let x = 0.0 in
-          let y = 240.0 in
+          let y = 220.0 in
           let init = 500.0 in
-          let twistall = concatMap (\(y, t) -> map (translate x y) t) $ zip [init, (init - y) ..] (replicate 5 twist) in
+          let twistall = concatMap (\(y, t) -> map (translate x y) t) $
+                         zip [init, (init - y) ..] (replicate 5 twist) in
           map (translate 0 (-80) . scale 0.5 0.5) twistall
-          -- twist ++ map (translate 0 (-100)) twist
--- initWorld = [crossing Vert (0, 0) 30 80,
-             -- crossing Horiz (100, 100) 50 150]
 
-handler :: Event -> [Picture] -> [Picture]
-handler event world = case event of
-                        EventKey (MouseButton LeftButton) Up _ (x, y) ->
-                          let newC = crossing' Vert (x, y) in
-                          (newC : world)
-                        _ -> world
-
-crossing' dir (x, y) = crossing dir (x, y) 30 80
-
--- positive floats
--- TODO: make crossing a type, with this being the picture function for it
--- make world state a type
--- UI design: "modes" for new, delete, bind, rotate?
--- TODO: can't move crossing onto another
-crossing :: Direction -> Point -> Float -> Float -> Picture
-crossing dir (x, y) thickness length =
-         let lenhalf = length / 2 in
-         let thickhalf = thickness / 2 in
-         let linewidth = 1 in
-         let left = line [(-thickhalf, -lenhalf), (-thickhalf, lenhalf)] in
-         let right = translate thickness 0 left in
-         let bottom = line [(-lenhalf, -thickhalf), (lenhalf, -thickhalf)] in
-         let top = translate 0 thickness bottom in
-         -- assumes lines of thickness 1
-         let (horiz, vert) = case dir of
-                               Horiz -> (thickness + linewidth,
-                                         thickness - linewidth)
-                               Vert  -> (thickness - linewidth,
-                                         thickness + linewidth) in
-         let over = color white $ rectangleSolid horiz vert in
-         pictures $ map (translate x y) $ [left, right, bottom, top, over]
+              -- This lack of flipping is sort of a problem
+              -- need a better haskell emacs-mode (or switch to OCaml graphics -- has beziers)
+              -- To reverse the crossings, flip the image (will have to hard-code twists with different angles? or change their angles)
