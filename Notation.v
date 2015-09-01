@@ -146,5 +146,21 @@ Definition tangle := list nat.
 
 Definition flype (t : tangle) : tangle := t.
 
+(* --------------- *)
+(* Miscellaneous knotes and insights *)
+
+(* Conway (in biography): I've never found a way to tell someone a knot over the phone! Even keeping in mind that they're a nerd,
+just like you are!
+
+Embed Q&A *in* talk at end, ask people with questions to ask afterward?
+
+Drawing knots with conway and dowker notation IS a good way to formalize it!
+
+Dowker breaks the knot down, Conway builds it up
+
+Proving that every knot is expressible in the notation instantly proves that enumerating the notation will cover every knot
+
+Problems: actually lower-crossing knots, links, duplicates *)
+
 
 
