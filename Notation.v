@@ -128,6 +128,14 @@ it's not possible to make choices that enclose an odd number?
 if this isn't the distinguishing factor, then what makes one drawable and another not drawable?
 the encs always add up to 2*number of crossings?
  *)
+ 
+ (* Dowker notation drawability: I think the two conditions are necessary and sufficient
+ 1. evens and odds paired
+ 2. every loop encloses numerically consecutive numbers? (is there any condition on the numbers attached on the other side?
+ 
+ TODO clarify/algo for the latter
+ TODO look at the knot theory in isabelle paper/thesis
+ *)
 
 (* --------------- *)
 (* Conway notation *)
@@ -137,6 +145,22 @@ Definition cKnot := list nat.
 Definition tangle := list nat.
 
 Definition flype (t : tangle) : tangle := t.
+
+(* --------------- *)
+(* Miscellaneous knotes and insights *)
+
+(* Conway (in biography): I've never found a way to tell someone a knot over the phone! Even keeping in mind that they're a nerd,
+just like you are!
+
+Embed Q&A *in* talk at end, ask people with questions to ask afterward?
+
+Drawing knots with conway and dowker notation IS a good way to formalize it!
+
+Dowker breaks the knot down, Conway builds it up
+
+Proving that every knot is expressible in the notation instantly proves that enumerating the notation will cover every knot
+
+Problems: actually lower-crossing knots, links, duplicates *)
 
 
 
