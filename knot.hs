@@ -69,7 +69,8 @@ embedIn polyhedron tanglePic = foo
 
 -- should probably return other stuff like where the relevant endpoints are
 renderTangle :: [Twist] -> [Picture]
-renderTangle twists = foo
+renderTangle = let multiply a b = a :: [b] in {- is there an identity for mult? -}
+             foldl multiply [0] . map renderTwist
 
 renderKnot :: ConwayNotation -> [Picture]
 renderKnot (tangle, polyhedron) = embedIn polyhedron $ renderTangle tangle
