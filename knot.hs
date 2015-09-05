@@ -1,18 +1,19 @@
+import Data.List
 import Graphics.Gloss
 import Graphics.Gloss.Interface.Pure.Game
 
-main
-        = play
-          (InWindow
-          "Nice Window"
-          (1000, 1000)
-          (0, 0)) 
-        white
-        50
-        initWorld
-        pictures
-        (\e -> \p -> p) -- no handler
-        (\t -> \w -> w) -- no timestep
+-- main
+--         = play
+--           (InWindow
+--           "Nice Window"
+--           (1000, 1000)
+--           (0, 0)) 
+--         white
+--         50
+--         initWorld
+--         pictures
+--         (\e -> \p -> p) -- no handler
+--         (\t -> \w -> w) -- no timestep
 
 {- Types:
 tangles: e.g. 10***.3:1.1.1.3.-4......
@@ -61,6 +62,29 @@ six_2 = ([3, 1, 2], 1)
 six_3 :: ConwayNotation
 six_3 = ([2, 1, 1, 2], 1)
 
+-----------
+
+-- Code to generate knots and filter out (lower-crossing knots / links / dups)
+
+-- given # crossings, produce all knots with that # crossings
+dowkers :: Int -> [[(Int, Int)]]
+dowkers n
+  | n <= 0 = []
+  | otherwise =
+  let (odds, evens) = (take n [1, 3 ..], take n [2, 4 ..]) in
+  map (zip odds) (permutations evens)
+
+partitions :: Int -> [[Int]]
+partitions n
+  | n <= 0 = [[]]
+  | otherwise =
+  let choose n = [1, 2 .. n] in
+  let subpartition y = map (y :) $ partitions (n - y) in
+  concatMap subpartition (choose n)
+
+
+-----------
+
 foo :: [Picture]
 foo = [Circle 200]
 
@@ -69,8 +93,9 @@ embedIn polyhedron tanglePic = foo
 
 -- should probably return other stuff like where the relevant endpoints are
 renderTangle :: [Twist] -> [Picture]
-renderTangle = let multiply a b = a :: [b] in {- is there an identity for mult? -}
-             foldl multiply [0] . map renderTwist
+renderTangle t = foo
+-- let multiply a b = a :: [b] in {- is there an identity for mult? -}
+             -- foldl multiply [0] . map renderTwist
 
 renderKnot :: ConwayNotation -> [Picture]
 renderKnot (tangle, polyhedron) = embedIn polyhedron $ renderTangle tangle
