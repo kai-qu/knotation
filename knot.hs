@@ -5,6 +5,8 @@
 import Diagrams.Prelude
 import Diagrams.Backend.SVG.CmdLine
 
+-- ghc --make knot.hs; ./knot -o knot.svg -h 500; chrome knot.svg
+
 illustrateBézier c1 c2 x2
     =  endpt
     <> endpt  # translate x2
@@ -28,13 +30,36 @@ example = illustrateBézier c1 c2 x2
 
 ----------------------
 
-pts = map p2 [(0,0), (2,3), (5,-2), (-4,1), (0,3)]
-spot = circle 0.2 # fc blue # lw none
-mkPath closed = position (zip pts (repeat spot))
-             <> cubicSpline closed pts
+w = 1                           -- total width
+h = 4                      -- total height
+offCenter = 0.2
+pts (baseX, baseY) = 
+  let w' = w / 2.0 in
+  let h' = h / 4.0 in
+  map p2 [(baseX - offCenter, baseY), (baseX - w', baseY - h'),
+          (baseX + w', baseY - (h' * 3)), (baseX + offCenter, baseY - h)]
+spot = circle 0.02 # fc blue # lw none
+mkPath base = position (zip (pts base) (repeat spot))
+             <> cubicSpline False (pts base)
+
+twistOffsetX = 0
+delta = 0.2
+twistOffsetY = h / 2.0 + delta
+twistOffsetP n = (twistOffsetX, n * twistOffsetY)
+
+smash xs = foldl (<>) mempty xs
+
+-- twist :: Diagram B
+twist n base =
+      let translateBy n obj = obj # translate (r2 $ twistOffsetP n) in
+      let twists = take n $ zipWith translateBy [0, 1..] (repeat $ mkPath base) in
+      let halfTwists = [mempty] in -- [topHalf 0, bottomHalf n] -- TODO
+      smash $ twists ++ halfTwists
+      -- hcat [mkPath False, mkPath False]
+      -- mkPath False ||| mkPath False
 
 cubicSplineEx :: Diagram B
-cubicSplineEx = (mkPath False ||| strutX 2 ||| mkPath True)
-              # centerXY # pad 1.1
+cubicSplineEx = (twist 5 (0, 0) ||| (twist 3 (5, 5) # rotateBy (1/4)))
+                # centerXY # pad 1.1
 
 main = mainWith cubicSplineEx
