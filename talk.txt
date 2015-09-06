@@ -1,0 +1,182 @@
+* Strange loops:
+  how to tell a knot to a nerd over the phone, and 
+  why you would want to
+
+* Thesis / Why you should care about knot notation and enumeration 
+  / updated abstract:
+Knots are fascinating, complex objects. Serializing them into text notation is hard. Mathematicians design these notations in order to encode insights and facilitate computation on knots, such as enumerating them. Studying the pros and cons of various knot notations will teach us lessons about programming languages, which are also a form of notation that encode a complex object. 
+
+[Not done; missing points on:
+
+- encoding insights takes extra manipulation, but allows ___? (do-notation)
+- computation on knots, enumerating knots
+  think about how many objects correspond to a particular program, and how many programs correspond to a particular object
+- how easy is it for another [person/computer] to understand your notation
+- is there a COMPLEXITY reason that Conway is better than Dowker? (not space)
+  what makes it "eminently suitable for machine enumeration"?
+- knot enumeration code]
+
+* Roadmap:
+(I don't know how to slice the material! Should we do the emergent property segue, or pose the "how would YOU write out all knots of n crossings" question at the outset?)
+
+??? = Questions to answer
+
+- Knot notation
+  - Number of crossings: bad
+  - Augment with direction: Dowker, better
+    - Properties of (one-to-many, many-to-one)
+- Knot notation -> enables knot enumeration!
+  - Why enumerate? Make tables; classify DNA; sequences
+  - Enumeration with Dowker
+    - Code and drawing
+    - Dealing with lower-crossing knots, duplicates
+    - Properties we can read off the notation
+  - Conway notation
+    - Properties: rational fraction equivalence
+    - Efficiency: encodes flype (Tait's theorem)
+      - ???
+    - Enumeration with Conway: partitions (need to manipulate knot though)
+    - Code and drawing
+    - Dealing with lower-crossing knots, duplicates, links (and polyhedra)
+- Comparison
+  - Suitability for COMPUTERS vs HUMANS
+    - Space efficiency, time efficiency
+    - ???
+  - Dowker: lots of duplicates; knot isotopy is hard and unsolved
+  - Fancier notations
+- Lessons for notation
+  - Encode properties -- but tradeoffs
+  - Axes of notation 
+    - one-to-many, many-to-one, human, machine, writability, readability,
+      break down vs. build up
+  - Good notation enables new operations, thought, manipulation
+  - Use existing powerful theorem (e.g. Tait)
+  - Applied to programming languages
+    - ???
+- Q&A
+  - Knots vs. graphs: graphs are weird too! Why are they easy to reason about?
+  - Focusing on prime alternating knots
+  - Higher-crossing knots and polyhedra
+  - (History of knot theory: atoms/enumeration)
+  - Details of knot enumeration and drawing algorithms
+  - Research frontiers
+  - Other notations (e.g. bra-ket)
+  - ???
+[Related sources: knots as processes; monadic knot diagrams; braid drawing]
+
+* Our idea of a knot:
+[shoelace/overhand knot with loose ends]
+
+Mathematicians' idea of a knot:
+[tie ends together -- line embedded nicely in R^3]
+
+Imagine an ideal knot as made of very stretchy string:
+[isotopy to trefoil]
+
+* Mathematician John Conway:
+  One thing I never figured out was how to tell a knot
+  to a nerd over the phone! Keep in mind that the person
+  you're talking to is just as much of a nerd as you are! [1]
+
+[1] Knot tables exist
+
+* Let's try some ways for you to tell me this knot over the phone:
+[six-crossing knot]
+
+* First: "It has six crossings!"
+
+[1] Is an actual notation
+
+* But that's not enough information! It could be this one. Or this one.
+[6_1, 6_2, 6_3...]
+
+* Second: Augment "six crossings" with more information!
+
+----
+* More information = a common protocol about how to draw/construct the knot.
+(More topological terms?)
+The next most obvious thing is to add a *direction* on top of the crossing number
+/ each crossing. We do this by traveling around the knot.
+
+Every crossing gets an odd and an even number -- why? (exercise)
+
+* Give me the Dowker notation for 6_1. 
+This knot has multiple notations, depending on which crossing I start at.
+
+* Now, you tell me this notation over the phone. 
+I try to draw 6_1. There are 4 possibilities. 
+This notation corresponds to multiple knots.
+
+[code]
+
+* So, Dowker notation still has ambiguity
+
+----
+
+* Every knot is expressible in Dowker notation. If we systematically write out 
+ALL Dowker notations, then we know our knot must be there! [use laziness?]
+
+* Cool, so having a notation lets us ENUMERATE all the knots! e.g. 
+for six crossings. 
+
+* One application: Make numbered knot tables: so nerds can just say
+"yes, I'm talking about the fifth entry in the Canonical
+Recurse Center Knot Atlas 2015", and not have to solve
+this problem again!
+
+Other applications: DNA untangling; info about knots
+(how the graph of # knots vs. crossing # looks)
+
+* Questions about Dowker and enumeration: 
+  - Say you wanted to enumerate all knots of 6 crossings.
+    Does the knot you're drawing actually have fewer crossings?
+    Is it a link? Is it a duplicate of one you already have?
+
+Let's try this. [code]
+
+---
+
+* In fact, these is a very interesting notation that John Conway
+  invented that encodes many interesting insights and makes enumeration
+  easier. 
+
+* Dowker *breaks down* an existing knot; Conway *builds up* a knot.
+  Conway builds up a knot from *polyhedra* composed of *tangles*.
+  These tangles are composed of *twists* that are combined with various *combinators*.
+
+* Tutorial: write a knot in Conway notation (trefoil -> 3?)
+
+* Tutorial: draw a knot from Conway notation (3 1 2)
+
+* What a flype is (rotate 180 degrees) and Tait's theorem (all reduced alternating diagrams can be made using flypes of an existing one)
+
+* Mention rational fraction equivalence
+
+* Enumeration with Conway: partition. All knots up to 7 crossings
+
+TODO
+
+---
+
+* Ways to describe complex things are important, because
+  they make it easier or harder (along multiple axes) for humans
+  to manipulate ideas!
+     e.g. ease of writing notation, uniqueness, how easily
+     important insights can be encoded and read off it,
+     what information is lost and gained...
+     like a powerful sort of serialization
+
+* Programming languages also provide a notation for thought. Can knot notation count as a kind of DSL?
+
+TODO (more details in overview)
+
+
+* Thanks!
+
+----
+
+Q&A
+
+[] We usually try to enumerate the *prime*, *alternating* knots first,
+   ignoring "mirror-image" ones
+[] ...
