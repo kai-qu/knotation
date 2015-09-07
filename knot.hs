@@ -1,35 +1,11 @@
-{-# LANGUAGE NoMonomorphismRestriction #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE TypeFamilies #-}
+-- Needed for `diagrams`
+{-# LANGUAGE NoMonomorphismRestriction, FlexibleContexts, TypeFamilies #-}
 
 import Data.List
 import Diagrams.Prelude
 import Diagrams.Backend.SVG.CmdLine
 
 -- ghc --make knot.hs; ./knot -o knot.svg -h 500; chrome knot.svg
-
-illustrateBézier c1 c2 x2
-    =  endpt
-    <> endpt  # translate x2
-    <> ctrlpt # translate c1
-    <> ctrlpt # translate c2
-    <> l1
-    <> l2
-    <> fromSegments [bézier3 c1 c2 x2]
-  where
-    dashed  = dashingN [0.03,0.03] 0
-    endpt   = circle 0.05 # fc red  # lw none
-    ctrlpt  = circle 0.05 # fc blue # lw none
-    l1      = fromOffsets [c1] # dashed
-    l2      = fromOffsets [x2 ^-^ c2] # translate c2 # dashed
-
-x2      = r2 (3,-1) :: V2 Double     -- endpoint
-[c1,c2] = map r2 [(1,2), (3,0)]     -- control points
-
-example :: Diagram B
-example = illustrateBézier c1 c2 x2
-
-----------------------
 
 {- Types:
 tangles: e.g. 10***.3:1.1.1.3.-4......
@@ -62,6 +38,24 @@ the tangles, and Tangle is a list of numbers with combinators like -, ,?
 type Twist = Int
 type Polyhedron = Int
 type ConwayNotation = ([Twist], Polyhedron)
+
+-- Pos = left-to-right, bottom strand goes to the top
+data Direction = Neg | Pos
+
+data Tangle =
+     Zero | Infinity | Twist Direction Int
+     | Add Tangle Tangle | Mult Tangle Tangle
+     -- what about converting Mult to reflect, rotate, and add??
+     -- can't do reflect and rotate because we don't handle coords here?
+     deriving (Show, Eq)
+
+-- more low-level
+-- overstrand (middle, start and end of 1 segment)
+-- understand (start and end of 2 segments)
+-- at 45 degrees
+data Crossing = Todo Int
+
+-- ? fix this. data Knot = ... polyhedra, locations..
 
 trefoil :: ConwayNotation
 trefoil = ([3], 1)
@@ -135,14 +129,19 @@ To draw: trefoil, [2 1]; [2 1 2]; [3 3 3]... -}
 w = 1                           -- total width
 h = 4                      -- total height
 offCenter = 0.2
-pts (baseX, baseY) = 
+twistPts (baseX, baseY) = 
   let w' = w / 2.0 in
   let h' = h / 4.0 in
   map p2 [(baseX - offCenter, baseY), (baseX - w', baseY - h'),
           (baseX + w', baseY - (h' * 3)), (baseX + offCenter, baseY - h)]
 spot = circle 0.02 # fc blue # lw none
-mkPath base = position (zip (pts base) (repeat spot))
-             <> cubicSpline False (pts base)
+
+-- connect the dots
+mkSpline showPts points =
+         if showPts then
+         position (zip points (repeat spot)) <> cubicSpline False points
+         else cubicSpline False points -- spline not closed
+mkTwist base = mkSpline True (twistPts base)
 
 twistOffsetX = 0
 delta = 0.2
@@ -154,11 +153,11 @@ smash xs = foldl (<>) mempty xs
 -- twist :: Diagram B
 twist n base =
       let translateBy n obj = obj # translate (r2 $ twistOffsetP n) in
-      let twists = take n $ zipWith translateBy [0, 1..] (repeat $ mkPath base) in
+      let twists = take n $ zipWith translateBy [0,1..] (repeat $ mkTwist base) in
       let halfTwists = [mempty] in -- [topHalf 0, bottomHalf n] -- TODO
       smash $ twists ++ halfTwists
-      -- hcat [mkPath False, mkPath False]
-      -- mkPath False ||| mkPath False
+      -- hcat [mkTwist False, mkTwist False]
+      -- mkTwist False ||| mkTwist False
 
 cubicSplineEx :: Diagram B
 cubicSplineEx = twist 3 (0, 0) # rotateBy (1/4)
@@ -168,4 +167,56 @@ cubicSplineEx = twist 3 (0, 0) # rotateBy (1/4)
               -- (twist 2 (0, 0) ||| (twist 2 (0, 0) # rotateBy (1/4)))
                 # centerXY # pad 1.1
 
-main = mainWith cubicSplineEx
+-------
+
+
+
+
+type Pt = (Double, Double)
+data TangleCorners = TangleCorners { -- northwest, northeast, etc. + location of mid
+     nw :: Pt
+     , ne :: Pt
+     , sw :: Pt
+     , se :: Pt
+     , midX :: Double
+     , midY :: Double -- delete this or use bounding box instead?
+     } deriving (Show)
+
+tPts t = [nw t, ne t, sw t, se t]
+
+testTangle = TangleCorners { nw = (-1, 1), ne = (1, 0.5),
+                             sw = (-1, -0.5), se = (1, -1),
+                             midX = 0, midY = 0 }
+
+average xs = sum xs / genericLength xs
+polyDelta = 0.5 -- TODO
+
+-- assuming it doesn't use sw and se          
+topPts tangle =
+       let (nw', ne') = (nw tangle, ne tangle) in
+       -- the points may be at diff y-level, so choose the higher y as
+       -- a baseline for the padding points' ys
+       let bottomY = max (snd nw') (snd ne') in
+       let height = average [abs $ fst nw', abs $ fst ne'] in
+       let midpt = (midX tangle, bottomY + height) in
+                 -- polyDelta vs. height?
+       let leftpad = (fst nw' - polyDelta, bottomY + polyDelta) in
+       let rightpad = (fst ne' + polyDelta, bottomY + polyDelta) in
+       map p2 [nw', leftpad, midpt, rightpad, ne']
+
+bottomPts tangle =
+       -- let tangleFlipY = tangle in
+       -- map flipY $ topPts tangleFlipY
+       let (sw', se') = (sw tangle, se tangle) in
+       let bottomY = min (snd sw') (snd se') in
+       let height = average [abs $ fst sw', abs $ fst se'] in
+       let midpt = (midX tangle, bottomY - height {- todo -} ) in
+       let leftpad = (fst sw' - polyDelta, bottomY - polyDelta) in
+       let rightpad = (fst se' + polyDelta, bottomY - polyDelta) in
+       map p2 [sw', leftpad, midpt, rightpad, se']
+
+mkPolyhedron1 :: TangleCorners -> Diagram B
+mkPolyhedron1 tangle =
+              mkSpline False (topPts tangle) <> mkSpline False (bottomPts tangle)
+
+main = mainWith (mkPolyhedron1 testTangle)
