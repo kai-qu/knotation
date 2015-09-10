@@ -38,12 +38,13 @@ the tangles, and Tangle is a list of numbers with combinators like -, ,?
 type Twist = Int
 type Polyhedron = Int
 type ConwayNotation = ([Twist], Polyhedron)
+-- doesn't account for tangle addition
 
 -- Pos = left-to-right, bottom strand goes to the top
-data Direction = Neg | Pos
+data Direction' = Neg | Pos deriving (Show, Eq)
 
 data Tangle =
-     Zero | Infinity | Twist Direction Int
+     Zero | Infinity | Twist Direction' Int
      | Add Tangle Tangle | Mult Tangle Tangle
      -- what about converting Mult to reflect, rotate, and add??
      -- can't do reflect and rotate because we don't handle coords here?
@@ -53,7 +54,24 @@ data Tangle =
 -- overstrand (middle, start and end of 1 segment)
 -- understand (start and end of 2 segments)
 -- at 45 degrees
-data Crossing = Todo Int
+-- translate a tangle into over/under crossings with coordinates? or just rela
+-- tive positions?
+data Crossing = Under | Over
+-- data Crossing' = Crossing' {
+--      mid :: Pt
+--      , over :: (Pt, Pt
+
+{-
+data TangleCorners = TangleCorners { -- northwest, northeast, etc. + location of mid
+     nw :: Pt
+     , ne :: Pt
+     , sw :: Pt
+     , se :: Pt
+     , midX :: Double
+     , midY :: Double -- delete this or use bounding box instead?
+     } deriving (Show)
+-}
+-- compile 1 -> Twist Pos 1 -> Crossing ? -> ? + Polyhedra
 
 -- ? fix this. data Knot = ... polyhedra, locations..
 
@@ -169,8 +187,7 @@ cubicSplineEx = twist 3 (0, 0) # rotateBy (1/4)
 
 -------
 
-
-
+-- Draw the 1* polyhedron
 
 type Pt = (Double, Double)
 data TangleCorners = TangleCorners { -- northwest, northeast, etc. + location of mid
@@ -215,8 +232,44 @@ bottomPts tangle =
        let rightpad = (fst se' + polyDelta, bottomY - polyDelta) in
        map p2 [sw', leftpad, midpt, rightpad, se']
 
+-- Usage: main = mkPolyhedron1 testTangle
 mkPolyhedron1 :: TangleCorners -> Diagram B
 mkPolyhedron1 tangle =
               mkSpline False (topPts tangle) <> mkSpline False (bottomPts tangle)
 
-main = mainWith (mkPolyhedron1 testTangle)
+---
+
+-- Draw the 1 crossing (not -1)
+
+-- node :: Int -> Diagram B
+-- node n = text (show n) # fontSizeL 0.2 # fc white
+--       <> circle 0.1 # fc green # named n
+
+-- crossing :: Int -> Diagram B
+-- crossing n = atPoints (trailVertices $ regPoly n 1) (map node [1..n])
+--   # connectOutside (1 :: Int) (3 :: Int) # connectOutside (2 :: Int) (4 :: Int)
+
+r90 = rotateBy (1/4)
+r180 = rotateBy (1/2)
+gap' = 0.2
+
+-- TODO: return the 7 relevant points (overleft, overmid, overright, 
+-- underleft, underleft', underright', underright)
+-- or 3 relevant segments
+overcross :: Diagram B
+overcross = let right = unitX in
+           let top = (1 - gap') *^ r90 unitX in
+           let left = r180 right in
+           let bottom = r180 top in
+           let (gap_b, gap_t) = (r2 (0, -gap'), r2 (0, gap')) in
+           fromOffsets [left]
+           <> fromOffsets [right]
+           <> lineFromOffsets [bottom] # strokeLine # translate gap_b
+           <> lineFromOffsets [top] # strokeLine # translate gap_t
+
+undercross :: Diagram B
+undercross = overcross # rotateBy (1/4)
+
+main = mainWith $
+       overcross ||| undercross
+       # centerXY # pad 1.1
