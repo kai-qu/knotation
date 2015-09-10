@@ -152,7 +152,7 @@ twistPts (baseX, baseY) =
   let h' = h / 4.0 in
   map p2 [(baseX - offCenter, baseY), (baseX - w', baseY - h'),
           (baseX + w', baseY - (h' * 3)), (baseX + offCenter, baseY - h)]
-spot = circle 0.02 # fc blue # lw none
+spot = circle 0.1 # fc blue # lw none
 
 -- connect the dots
 mkSpline showPts points =
@@ -206,7 +206,7 @@ tanglePoints = TangleCorners { nw = (-1, 1), ne = (1, 0.5),
                              midX = 0, midY = 0 }
 
 average xs = sum xs / genericLength xs
-polyDelta = 0.5 -- TODO
+polyDelta = 0.2 -- TODO
 
 -- assuming it doesn't use sw and se          
 topPts tangle =
@@ -219,7 +219,9 @@ topPts tangle =
                  -- polyDelta vs. height?
        let leftpad = (fst nw' - polyDelta, bottomY + polyDelta) in
        let rightpad = (fst ne' + polyDelta, bottomY + polyDelta) in
-       map p2 [nw', leftpad, midpt, rightpad, ne']
+       -- padding points currently unused
+       -- map p2 [nw', leftpad, midpt, rightpad, ne']
+       map p2 [nw', midpt, ne']
 
 bottomPts tangle =
        -- let tangleFlipY = tangle in
@@ -230,7 +232,8 @@ bottomPts tangle =
        let midpt = (midX tangle, bottomY - height {- todo -} ) in
        let leftpad = (fst sw' - polyDelta, bottomY - polyDelta) in
        let rightpad = (fst se' + polyDelta, bottomY - polyDelta) in
-       map p2 [sw', leftpad, midpt, rightpad, se']
+       -- map p2 [sw', leftpad, midpt, rightpad, se']
+       map p2 [sw', midpt, se']
 
 -- Usage: main = mkPolyhedron1 tanglePoints
 -- maybe don't render the diagram, but pass the list of segments?
@@ -270,25 +273,36 @@ overcross = let right = unitX in
            let bt = r180 top in
            let (gap_b, gap_t) = (r2 (0, -gap'), r2 (0, gap')) in
                -- TODO factor out repeated parts
-           let left' = lineFromOffsets [left] # strokeLine # r45 in
-           let right' = lineFromOffsets [right] # strokeLine # r45 in
-           let bt' = lineFromOffsets [bt] # strokeLine # translate gap_b # r45 in
-           let top' = lineFromOffsets [top] # strokeLine # translate gap_t # r45 in
-           let diagram = left' <> right' <> bt' <> top' in
+           let left' = lineFromOffsets [left] # strokeLine in
+           let right' = lineFromOffsets [right] # strokeLine in
+           let bt' = lineFromOffsets [bt] # strokeLine # translate gap_b in
+           let top' = lineFromOffsets [top] # strokeLine # translate gap_t in
+           -- let diagram = left' <> right' <> bt' <> top' in
+           let diagram = mconcat $ map (translate (r2 (clen, 0)) . r45) [left', right', bt', top'] in
            let coords = TangleCorners -- TODO: remove reliance on coords
                -- top -> nw, left -> ne, left -> sw, bot -> se
-                        { nw = (-clen, clen), ne = (clen, clen),
-                          sw = (-clen, -clen), se = (clen, -clen),
-                          midX = 0, midY = 0 } in
+                        { nw = (0, clen), ne = (2 * clen, clen),
+                          sw = (0, -clen), se = (2 * clen, -clen),
+                          midX = clen, midY = 0 } in
           (diagram, coords)
 
 undercross :: (Diagram B, TangleCorners)
 undercross = (fst overcross # rotateBy (1/4), snd overcross)
 
+twistSq :: Int -> (Diagram B, TangleCorners)
+twistSq n = let width' = clen * fromIntegral n in
+            let newCoords = TangleCorners -- TODO: remove reliance on coords
+         -- confusing: coords could be relative, then whole diagram translated
+                        { nw = (0, clen), ne = (2 * width', clen),
+                          sw = (0, -clen), se = (2 * width', -clen),
+                          midX = width', midY = 0.0 } in
+         (hcat $ replicate n $ fst overcross, newCoords)
+
 -- note: twist multiple times = trivially put crossings next to each other
 -- (you can spline if you want) and return the new endpoints
 
 main = mainWith $
-       fst overcross ||| fst overcross ||| fst undercross
-       ||| mkPolyhedron1 overcross
+       -- fst overcross ||| fst overcross ||| fst undercross
+       mkPolyhedron1 overcross ||| circle 1 ||| mkPolyhedron1 (twistSq 5)
+       ||| circle 1 ||| mkPolyhedron1 (twistSq 6)
        # centerXY # pad 1.1
