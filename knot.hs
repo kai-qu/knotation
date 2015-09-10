@@ -201,7 +201,7 @@ data TangleCorners = TangleCorners { -- northwest, northeast, etc. + location of
 
 tPts t = [nw t, ne t, sw t, se t]
 
-testTangle = TangleCorners { nw = (-1, 1), ne = (1, 0.5),
+tanglePoints = TangleCorners { nw = (-1, 1), ne = (1, 0.5),
                              sw = (-1, -0.5), se = (1, -1),
                              midX = 0, midY = 0 }
 
@@ -232,10 +232,12 @@ bottomPts tangle =
        let rightpad = (fst se' + polyDelta, bottomY - polyDelta) in
        map p2 [sw', leftpad, midpt, rightpad, se']
 
--- Usage: main = mkPolyhedron1 testTangle
-mkPolyhedron1 :: TangleCorners -> Diagram B
-mkPolyhedron1 tangle =
-              mkSpline False (topPts tangle) <> mkSpline False (bottomPts tangle)
+-- Usage: main = mkPolyhedron1 tanglePoints
+-- maybe don't render the diagram, but pass the list of segments?
+mkPolyhedron1 :: (Diagram B, TangleCorners) -> Diagram B
+mkPolyhedron1 (tangle, tanglePts) = tangle
+              <> mkSpline False (topPts tanglePts)
+              <> mkSpline False (bottomPts tanglePts)
 
 ---
 
@@ -249,27 +251,44 @@ mkPolyhedron1 tangle =
 -- crossing n = atPoints (trailVertices $ regPoly n 1) (map node [1..n])
 --   # connectOutside (1 :: Int) (3 :: Int) # connectOutside (2 :: Int) (4 :: Int)
 
+r45 = rotateBy (1/8)
 r90 = rotateBy (1/4)
 r180 = rotateBy (1/2)
 gap' = 0.2
 
+-- lol sorry
+-- crossing length
+clen = sqrt 2 / 2
+
 -- TODO: return the 7 relevant points (overleft, overmid, overright, 
 -- underleft, underleft', underright', underright)
 -- or 3 relevant segments
-overcross :: Diagram B
+overcross :: (Diagram B, TangleCorners)
 overcross = let right = unitX in
            let top = (1 - gap') *^ r90 unitX in
            let left = r180 right in
-           let bottom = r180 top in
+           let bt = r180 top in
            let (gap_b, gap_t) = (r2 (0, -gap'), r2 (0, gap')) in
-           fromOffsets [left]
-           <> fromOffsets [right]
-           <> lineFromOffsets [bottom] # strokeLine # translate gap_b
-           <> lineFromOffsets [top] # strokeLine # translate gap_t
+               -- TODO factor out repeated parts
+           let left' = lineFromOffsets [left] # strokeLine # r45 in
+           let right' = lineFromOffsets [right] # strokeLine # r45 in
+           let bt' = lineFromOffsets [bt] # strokeLine # translate gap_b # r45 in
+           let top' = lineFromOffsets [top] # strokeLine # translate gap_t # r45 in
+           let diagram = left' <> right' <> bt' <> top' in
+           let coords = TangleCorners -- TODO: remove reliance on coords
+               -- top -> nw, left -> ne, left -> sw, bot -> se
+                        { nw = (-clen, clen), ne = (clen, clen),
+                          sw = (-clen, -clen), se = (clen, -clen),
+                          midX = 0, midY = 0 } in
+          (diagram, coords)
 
-undercross :: Diagram B
-undercross = overcross # rotateBy (1/4)
+undercross :: (Diagram B, TangleCorners)
+undercross = (fst overcross # rotateBy (1/4), snd overcross)
+
+-- note: twist multiple times = trivially put crossings next to each other
+-- (you can spline if you want) and return the new endpoints
 
 main = mainWith $
-       overcross ||| undercross
+       fst overcross ||| fst overcross ||| fst undercross
+       ||| mkPolyhedron1 overcross
        # centerXY # pad 1.1
