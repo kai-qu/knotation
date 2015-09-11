@@ -199,8 +199,6 @@ data TangleCorners = TangleCorners { -- northwest, northeast, etc. + location of
      , midY :: Double -- delete this or use bounding box instead?
      } deriving (Show)
 
-tPts t = [nw t, ne t, sw t, se t]
-
 tanglePoints = TangleCorners { nw = (-1, 1), ne = (1, 0.5),
                              sw = (-1, -0.5), se = (1, -1),
                              midX = 0, midY = 0 }
@@ -263,10 +261,16 @@ gap' = 0.2
 -- crossing length
 clen = sqrt 2 / 2
 
+tPts t = [nw t, ne t, sw t, se t]
+
+mapTuple :: (a -> b) -> (a, a) -> (b, b)
+mapTuple f (a1, a2) = (f a1, f a2)
+
 -- box :: Colour a -> TangleCorners -> Diagram B
-box color tc = let spot = circle 0.05 # fc color # lw none in
+box color tc = let spot txt = text txt # fontSizeL 0.1 # fc white
+                              <> circle 0.1 # fc color # lw none in
                  let pts = map p2 (tPts tc) in -- TODO: midX, midY
-                 position (zip pts (repeat spot))
+                 position (zip pts [spot "nw", spot "ne", spot "sw", spot "se"])
 
 -- TODO: return the 7 relevant points (overleft, overmid, overright, 
 -- underleft, underleft', underright', underright)
@@ -304,39 +308,61 @@ twistSqH crossing n = let width' = clen * fromIntegral n in
          -- confusing: coords could be relative, then whole diagram translated
          (hcat $ replicate n $ fst crossing, newCoords)
 
--- vertical
-twistSqV :: (Diagram B, TangleCorners) -> Int -> (Diagram B, TangleCorners)
-twistSqV crossing n = let (horiz, coords) = twistSqH crossing n in
-         let width' = clen * fromIntegral n in
-         let rot p = unp2 $ rotateBy (1/4) $ p2 p in -- sorry
-         let (nw', ne') = (rot (nw coords), rot (ne coords)) in
-         let (sw', se') = (rot (sw coords), rot (se coords)) in
-         let newCoords = TangleCorners
-                        { nw = nw', ne = ne',
-                          sw = sw', se = se',
-                          midX = (fst nw' + fst ne') / 2,
-                          midY = (fst nw' + fst sw') / 2 } in
-         -- TODO not right?
-         (horiz # rotateBy (1/4), newCoords)
+-- midX' t = (fst $ nw t + fst $ ne t) / 2
+-- midY' t = (snd $ nw t + snd $ sw t) / 2
+-- meant to be used as [p2 `diff` p1], where 2 is new and 1 is original
+pdiff p2 p1 = (fst p2 - fst p1, snd p2 - snd p1)
 
+mapCorners :: (P2 Double -> P2 Double) -> TangleCorners -> TangleCorners
+mapCorners transform' tc =
+           let transP p = unp2 $ transform' $ p2 p in
+           let (nw', ne') = (transP $ nw tc, transP $ ne tc) in
+           let (sw', se') = (transP $ sw tc, transP $ se tc) in
+           TangleCorners {
+             nw = nw', ne = ne',
+             sw = sw', se = se',
+           -- by default -- may not be correct for non-rect corners
+             midX = (fst nw' + fst ne') / 2,
+             midY = (snd nw' + snd sw') / 2 }
+
+-- vertical
+-- twistSqV :: (Diagram B, TangleCorners) -> Int -> (Diagram B, TangleCorners)
+-- twistSqV crossing n = let (horiz, coords) = twistSqH crossing n in
+--          let width' = clen * fromIntegral n in
+--          let rot p = unp2 $ rotateBy (1/4) $ p2 p in -- sorry
+--          let (nw', ne') = (rot (nw coords), rot (ne coords)) in
+--          let (sw', se') = (rot (sw coords), rot (se coords)) in
+--          let newCoords = TangleCorners
+--                         { nw = nw', ne = ne',
+--                           sw = sw', se = se',
+--                           midX = (fst nw' + fst ne') / 2,
+--                           midY = (snd nw' + snd sw') / 2 } in
+--          -- TODO not right?
+--          (horiz # rotateBy (1/4), newCoords)
+
+-- assuming that d2 is always rectangular; d1 might not be
 tangleAdd :: (Diagram B, TangleCorners) -> (Diagram B, TangleCorners)
           -> (Diagram B, TangleCorners)
 tangleAdd (d1, c1) (d2, c2) =
           -- position 2nd tangle on right-middle of 1st
-          let d1_midY = (snd (nw c1) + snd (se c1)) / 2 in
-          let spc = 2 * clen in
+          let d1_midY = (snd (nw c1) + snd (sw c1)) / 2 in
+          let spc = 2 in -- TODO this should be proportionate to something
           -- TODO: calculate X such that we can connect in straight line
-          -- TODO: points are out of whack. nw and se work, nw and sw don't
           -- TODO: is this compositional??
-          let d2' = d2 # moveTo (p2 (fst (ne c1) + spc, d1_midY)) in
-          -- let d2' = d2 in
-          let c2' = c2 in -- TODO update with "map" trans
+          let d2center = (midX c2, midY c2) in -- TODO or use midX' etc
+          let d2halfwidth = (fst (ne c2) - fst (nw c2)) / 2 in
+          let d2center' = (fst (ne c1) + d2halfwidth + spc, d1_midY) in
+          let d2vector = r2 $ pdiff d2center' d2center in
+          let rightAndCenter = translate d2vector in
+          let rightAndCenter' = translate d2vector in -- need to fix type inference
+          let (d2', c2') = (rightAndCenter' d2, mapCorners rightAndCenter c2) in
+          -- let (d2', c2') = (rightAndCenter d2, mapCorners rightAndCenter c2) in
           let coordsCombine = TangleCorners -- combine from the 2 diagrams
                             { nw = nw c1, ne = ne c2', 
                               sw = sw c1, se = ne c2',
                               midX = (fst (nw c1) + fst (ne c2')) / 2,
                               -- note use of d1's midY
-                              midY = 2 } in
+                              midY = midY c1 } in -- TODO
           ((d1 <> d2')
           <> box green c1
           <> box red c2'
@@ -348,34 +374,33 @@ tangleMult :: (Diagram B, TangleCorners) -> (Diagram B, TangleCorners)
 tangleMult (d1, coords1) (d2, coords2) =
            let transform' = reflectX . rotateBy (1/4) in -- why X??
            let d1' = transform' d1 in
-
-           -- rotated the diagram, now rotate the coordinates. TODO reverse $
-           let rotRef p = unp2 $ transform' $ p2 p in
            -- sorry about the wrapping/unwrapping -- TODO pass Points around
-           -- TODO: "map" transformation over TangleCorners
-           let (nw', ne') = (rotRef (nw coords1), rotRef (ne coords1)) in
-           let (sw', se') = (rotRef (sw coords1), rotRef (se coords1)) in
+           let transP p = unp2 $ transform' $ p2 p in
+           let (nw', ne') = (transP (nw coords1), transP (ne coords1)) in
+           let (sw', se') = (transP (sw coords1), transP (se coords1)) in
            let coords1' = TangleCorners
-                        { nw = nw', ne = ne',
-                          sw = sw', se = se',
+           -- points are transformed and their locations have changed WRT compass
+                        { nw = se', ne = ne',
+                          sw = sw', se = nw',
                           midX = (fst nw' + fst ne') / 2, -- TODO
                           midY = (fst nw' + fst sw') / 2 } in -- TODO
-
            tangleAdd (d1', coords1') (d2, coords2)
-           -- TODO testing
-           -- (d1', coords1)
 
--- TODO: still need to flip existing tangle
-
--- monadically pass around coords
--- TODO draw the corners
+drawTangle :: Int -> Int -> Diagram B
+drawTangle x y = fst $ tangleMult (twistSqH overcross x) (twistSqH overcross y)
+   
+-- TODO monadically pass around coords
 main = mainWith $
-     let res = twistSqV overcross 1 in
-       -- ((fst res) <> (box red $ snd res))
-       -- ||| (fst $ twistSqH overcross 1)) # rotateBy (1/4)
-       -- ||| circle 1
-        (fst $ tangleMult (twistSqH overcross 2) (twistSqH overcross 1))
-       -- ||| mkPolyhedron1 (twistSqV overcross 3)
-       -- to make a vertical poly (you shouldn't need to),
-       -- make a horiz one and rotate it
+     let sep = circle 0.5 in
+     drawTangle 1 1
+     ||| sep
+     ||| drawTangle 2 1
+     ||| sep
+     ||| drawTangle 2 3
+     ||| sep
+     ||| drawTangle 3 2
+     ||| sep
+     ||| drawTangle 3 4
+       -- ||| mkPolyhedron1 (twistSqH overcross 3)
+       -- to make a vertical poly (you shouldn't need to), make horiz + rotate it
        # centerXY # pad 1.1
