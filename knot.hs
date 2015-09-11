@@ -154,7 +154,7 @@ twistPts (baseX, baseY) =
           (baseX + w', baseY - (h' * 3)), (baseX + offCenter, baseY - h)]
 spot = circle 0.1 # fc blue # lw none
 
--- connect the dots
+-- connect the dots. takes Points (not coords)
 mkSpline showPts points =
          if showPts then
          position (zip points (repeat spot)) <> cubicSpline False points
@@ -207,12 +207,13 @@ average xs = sum xs / genericLength xs
 polyDelta = 0.2 -- TODO
 
 -- assuming it doesn't use sw and se          
+-- TODO abstract out w/ bottomPts
 topPts tangle =
        let (nw', ne') = (nw tangle, ne tangle) in
        -- the points may be at diff y-level, so choose the higher y as
        -- a baseline for the padding points' ys
        let bottomY = max (snd nw') (snd ne') in
-       let height = average [abs $ fst nw', abs $ fst ne'] in
+       let height = average [abs $ fst nw', abs $ fst ne'] / 2 in
        let midpt = (midX tangle, bottomY + height) in
                  -- polyDelta vs. height?
        let leftpad = (fst nw' - polyDelta, bottomY + polyDelta) in
@@ -226,7 +227,7 @@ bottomPts tangle =
        -- map flipY $ topPts tangleFlipY
        let (sw', se') = (sw tangle, se tangle) in
        let bottomY = min (snd sw') (snd se') in
-       let height = average [abs $ fst sw', abs $ fst se'] in
+       let height = average [abs $ fst sw', abs $ fst se'] / 2 in
        let midpt = (midX tangle, bottomY - height {- todo -} ) in
        let leftpad = (fst sw' - polyDelta, bottomY - polyDelta) in
        let rightpad = (fst se' + polyDelta, bottomY - polyDelta) in
@@ -236,9 +237,16 @@ bottomPts tangle =
 -- Usage: main = mkPolyhedron1 tanglePoints
 -- maybe don't render the diagram, but pass the list of segments?
 mkPolyhedron1 :: (Diagram B, TangleCorners) -> Diagram B
-mkPolyhedron1 (tangle, tanglePts) = tangle
-              <> mkSpline False (topPts tanglePts)
-              <> mkSpline False (bottomPts tanglePts)
+mkPolyhedron1 (tangle, tanglePts) = 
+              let (topRes, botRes) = (topPts tanglePts, bottomPts tanglePts) in
+              tangle
+              <> mkSpline False (init topRes)
+              <> mkSpline False (tail topRes)
+              <> mkSpline False (init botRes)
+              <> mkSpline False (tail botRes)
+              -- TODO: put curved spline back; this is a hack
+              -- <> mkSpline False (topPts tanglePts)
+              -- <> mkSpline False (bottomPts tanglePts)
 
 ---
 
@@ -359,20 +367,24 @@ tangleAdd (d1, c1) (d2, c2) =
           -- let (d2', c2') = (rightAndCenter d2, mapCorners rightAndCenter c2) in
           let coordsCombine = TangleCorners -- combine from the 2 diagrams
                             { nw = nw c1, ne = ne c2', 
-                              sw = sw c1, se = ne c2',
+                              sw = sw c1, se = se c2',
                               midX = (fst (nw c1) + fst (ne c2')) / 2,
                               -- note use of d1's midY
                               midY = midY c1 } in -- TODO
-          ((d1 <> d2')
-          <> box green c1
-          <> box red c2'
-          <> box blue coordsCombine
+          -- TODO: calculate middle/handle point
+          let topAdd = mkSpline False (map p2 [ne c1, nw c2']) in
+          let bottomAdd = mkSpline False (map p2 [se c1, sw c2']) in
+          (d1 <> d2'
+          -- <> box green c1
+          -- <> box red c2'
+          -- <> box blue coordsCombine
+          <> topAdd <> bottomAdd
           , coordsCombine)
 
 tangleMult :: (Diagram B, TangleCorners) -> (Diagram B, TangleCorners)
           -> (Diagram B, TangleCorners)
 tangleMult (d1, coords1) (d2, coords2) =
-           let transform' = reflectX . rotateBy (1/4) in -- why X??
+           let transform' = reflectY . rotateBy (1/4) in -- why X??
            let d1' = transform' d1 in
            -- sorry about the wrapping/unwrapping -- TODO pass Points around
            let transP p = unp2 $ transform' $ p2 p in
@@ -380,27 +392,49 @@ tangleMult (d1, coords1) (d2, coords2) =
            let (sw', se') = (transP (sw coords1), transP (se coords1)) in
            let coords1' = TangleCorners
            -- points are transformed and their locations have changed WRT compass
-                        { nw = se', ne = ne',
-                          sw = sw', se = nw',
+                        { nw = nw', ne = sw',
+                          sw = ne', se = se',
                           midX = (fst nw' + fst ne') / 2, -- TODO
                           midY = (fst nw' + fst sw') / 2 } in -- TODO
            tangleAdd (d1', coords1') (d2, coords2)
 
 drawTangle :: Int -> Int -> Diagram B
-drawTangle x y = fst $ tangleMult (twistSqH overcross x) (twistSqH overcross y)
+drawTangle x y =  
+            let tangleFinal = tangleMult (twistSqH overcross x) (twistSqH overcross y) in
+            mkPolyhedron1 tangleFinal # pad 1.2
+
+-- note to self: natural foldl!
+drawTangleN :: [Int] -> Diagram B
+drawTangleN [] = mempty
+drawTangleN (t:ts) =             
+            let twistAndMultiply acc n = tangleMult acc (twistSqH overcross n) in
+            let tangleFinal = foldl twistAndMultiply (twistSqH overcross t) ts in
+            mkPolyhedron1 tangleFinal # pad 1.2
    
 -- TODO monadically pass around coords
+-- TODO display tangle numbers, enumerate all
 main = mainWith $
-     let sep = circle 0.5 in
-     drawTangle 1 1
-     ||| sep
-     ||| drawTangle 2 1
-     ||| sep
-     ||| drawTangle 2 3
-     ||| sep
-     ||| drawTangle 3 2
-     ||| sep
-     ||| drawTangle 3 4
-       -- ||| mkPolyhedron1 (twistSqH overcross 3)
-       -- to make a vertical poly (you shouldn't need to), make horiz + rotate it
-       # centerXY # pad 1.1
+     -- TODO confirm that this is right
+     -- TODO crossings rendered badly when img too large
+     -- TODO fix forking at intersections
+     (drawTangleN [1]
+     ||| drawTangleN [2]
+     ||| drawTangleN [3])
+     ===
+     (drawTangleN [1, 1]
+     ||| drawTangleN [2, 1]
+     ||| drawTangleN [2, 3])
+     ===
+     (drawTangleN [3, 2]
+     ||| drawTangleN [1, 4]
+     ||| drawTangleN [4, 1])
+     ===
+     (drawTangleN [1, 1, 1]
+     ||| drawTangleN [2, 1, 3]
+     ||| drawTangleN [6, 6, 6])
+     ===
+     (drawTangleN [2, 1, 1, 1, 2]
+     -- ||| drawTangleN [6, 6, 6, 6, 6, 6]
+     ||| drawTangleN [1, 2, 3, 4, 5])
+     -- # centerXY
+     # pad 1.3
