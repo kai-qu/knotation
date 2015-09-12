@@ -16,6 +16,11 @@ Knots are fascinating, complex objects. Serializing them into text notation is h
   what makes it "eminently suitable for machine enumeration"?
 - knot enumeration code]
 
+Lessons from Conway: 
+- Reduce the problem to cases + special cases, often relying on powerful theorems
+- Encode insights in your notation, often relying on powerful theorems
+- A notation has trade-offs along several axes -- sacrifices in one area can lead to big gains in another
+
 * Roadmap:
 (I don't know how to slice the material! Should we do the emergent property segue, or pose the "how would YOU write out all knots of n crossings" question at the outset?)
 

@@ -245,13 +245,12 @@ tangleAdd (d1, c1) (d2, c2) =
           let d1_midY = (snd (nw c1) + snd (sw c1)) / 2 in
           let spc = 2 in -- TODO this should be proportionate to something
           -- TODO: calculate X such that we can connect in straight line
-          -- TODO: is this compositional??
           let d2center = (midX c2, midY c2) in -- TODO or use midX' etc
           let d2halfwidth = (fst (ne c2) - fst (nw c2)) / 2 in
           let d2center' = (fst (ne c1) + d2halfwidth + spc, d1_midY) in
           let d2vector = r2 $ pdiff d2center' d2center in
           let rightAndCenter = translate d2vector in
-          let rightAndCenter' = translate d2vector in -- need to fix type inference
+          let rightAndCenter' = translate d2vector in -- TODO fix type inference
           let (d2', c2') = (rightAndCenter' d2, mapCorners rightAndCenter c2) in
           -- let (d2', c2') = (rightAndCenter d2, mapCorners rightAndCenter c2) in
           let coordsCombine = TangleCorners -- combine from the 2 diagrams
@@ -273,9 +272,9 @@ tangleAdd (d1, c1) (d2, c2) =
 tangleMult :: (Diagram B, TangleCorners) -> (Diagram B, TangleCorners)
           -> (Diagram B, TangleCorners)
 tangleMult (d1, coords1) (d2, coords2) =
-           let transform' = reflectY . rotateBy (1/4) in -- why X??
+           let transform' = reflectY . rotateBy (1/4) in
            let d1' = transform' d1 in
-           -- sorry about the wrapping/unwrapping -- TODO pass Points around
+           -- TODO pass Points around
            let transP p = unp2 $ transform' $ p2 p in
            let (nw', ne') = (transP (nw coords1), transP (ne coords1)) in
            let (sw', se') = (transP (sw coords1), transP (se coords1)) in
@@ -286,6 +285,8 @@ tangleMult (d1, coords1) (d2, coords2) =
                           midX = (fst nw' + fst ne') / 2, -- TODO
                           midY = (fst nw' + fst sw') / 2 } in -- TODO
            tangleAdd (d1', coords1') (d2, coords2)
+
+-- TODO: code to draw just tangle, flip / rotate tangle
 
 -- note to self: natural foldl!
 drawTangleN :: [Int] -> Diagram B
@@ -331,10 +332,9 @@ partitionsUpTo n
  | otherwise = map (\x -> (x, partitions x)) [1..n]
 
 
-
 rawKnotsTo7Crossings :: Diagram B
 rawKnotsTo7Crossings =
-   let notations = partitionsUpTo 7 in
+   let notations = partitionsUpTo 3 in
    -- TODO break lines into fives and put "knots of n crossings" text
    -- let drawn = map (\(crossings, tangles) -> (crossings, map drawTangleN tangles))
    --             notations in
