@@ -4,76 +4,14 @@
 import Data.List
 import Diagrams.Prelude
 import Diagrams.Backend.SVG.CmdLine
+import Diagrams.BoundingBox
 
 -- ghc --make knot.hs; ./knot -o knot.svg -h 500; chrome knot.svg
 
-{- Types:
-tangles: e.g. 10***.3:1.1.1.3.-4......
-(polyhedra)
-
-Data:
-Basic tangles 0, infinity, -1, 1
-Basic polyhedron 1*
-
-Functions I need:
-twist :: nat -> Picture (or [Picture]?)
-
-reverseCrossings :: Picture -> Picture ([Picture] -> [Picture])
-
-rotate90CW :: Picture -> Picture ([Picture] -> [Picture])
-
-connectTangles :: Picture -> Picture -> Picture
-
-embedInPolyhedron :: Picture -> polyhedron -> Picture 
-(later, multiple tangles = [Picture] -> labeled polyhedron -> Picture)
-
-renderTangle :: tangle -> Picture
-
-renderKnot :: [tangle] -> polyhedron -> Picture
-or (conway notation = (Polyhedron, [Tangle]) where polyhedron is a number
-that indexes a list of the polyhedron pictures / draws the polyhedron around
-the tangles, and Tangle is a list of numbers with combinators like -, ,?
--}
-
+-- unused
 type Twist = Int
 type Polyhedron = Int
 type ConwayNotation = ([Twist], Polyhedron)
--- doesn't account for tangle addition
-
--- Pos = left-to-right, bottom strand goes to the top
-data Direction' = Neg | Pos deriving (Show, Eq)
-
-data Tangle =
-     Zero | Infinity | Twist Direction' Int
-     | Add Tangle Tangle | Mult Tangle Tangle
-     -- what about converting Mult to reflect, rotate, and add??
-     -- can't do reflect and rotate because we don't handle coords here?
-     deriving (Show, Eq)
-
--- more low-level
--- overstrand (middle, start and end of 1 segment)
--- understand (start and end of 2 segments)
--- at 45 degrees
--- translate a tangle into over/under crossings with coordinates? or just rela
--- tive positions?
-data Crossing = Under | Over
--- data Crossing' = Crossing' {
---      mid :: Pt
---      , over :: (Pt, Pt
-
-{-
-data TangleCorners = TangleCorners { -- northwest, northeast, etc. + location of mid
-     nw :: Pt
-     , ne :: Pt
-     , sw :: Pt
-     , se :: Pt
-     , midX :: Double
-     , midY :: Double -- delete this or use bounding box instead?
-     } deriving (Show)
--}
--- compile 1 -> Twist Pos 1 -> Crossing ? -> ? + Polyhedra
-
--- ? fix this. data Knot = ... polyhedra, locations..
 
 trefoil :: ConwayNotation
 trefoil = ([3], 1)
@@ -103,37 +41,7 @@ dowkers n
   let (odds, evens) = (take n [1, 3 ..], take n [2, 4 ..]) in
   map (zip odds) (permutations evens)
 
-partitions :: Int -> [[Int]]
-partitions n
-  | n <= 0 = [[]]
-  | otherwise =
-  let choose n = [1, 2 .. n] in
-  let subpartition y = map (y :) $ partitions (n - y) in
-  concatMap subpartition (choose n)
-
 -----------
-
--- foo :: [Picture]
--- foo = [Circle 200]
-
--- embedIn :: Polyhedron -> [Picture] -> [Picture]
--- embedIn polyhedron tanglePic = foo
-
--- -- should probably return other stuff like where the relevant endpoints are
--- renderTangle :: [Twist] -> [Picture]
--- renderTangle t = foo
--- -- let multiply a b = a :: [b] in {- is there an identity for mult? -}
---              -- foldl multiply [0] . map renderTwist
-
--- renderKnot :: ConwayNotation -> [Picture]
--- renderKnot (tangle, polyhedron) = embedIn polyhedron $ renderTangle tangle
-
--- -- TODO: commas, polyhedra
-
--- initWorld :: [Picture]
--- initWorld = renderKnot trefoil
-
-----------------------
 
 {- Notes on drawing:
 
@@ -179,10 +87,6 @@ twist n base =
 
 cubicSplineEx :: Diagram B
 cubicSplineEx = twist 3 (0, 0) # rotateBy (1/4)
-              -- TODO: for multiple twists, endpoints + auto-placement +
-              -- the no-rotate method?
-              -- for figure-8      
-              -- (twist 2 (0, 0) ||| (twist 2 (0, 0) # rotateBy (1/4)))
                 # centerXY # pad 1.1
 
 -------
@@ -263,7 +167,7 @@ mkPolyhedron1 (tangle, tanglePts) =
 r45 = rotateBy (1/8)
 r90 = rotateBy (1/4)
 r180 = rotateBy (1/2)
-gap' = 0.2
+gap' = 0.35
 
 -- lol sorry
 -- crossing length
@@ -333,21 +237,6 @@ mapCorners transform' tc =
              midX = (fst nw' + fst ne') / 2,
              midY = (snd nw' + snd sw') / 2 }
 
--- vertical
--- twistSqV :: (Diagram B, TangleCorners) -> Int -> (Diagram B, TangleCorners)
--- twistSqV crossing n = let (horiz, coords) = twistSqH crossing n in
---          let width' = clen * fromIntegral n in
---          let rot p = unp2 $ rotateBy (1/4) $ p2 p in -- sorry
---          let (nw', ne') = (rot (nw coords), rot (ne coords)) in
---          let (sw', se') = (rot (sw coords), rot (se coords)) in
---          let newCoords = TangleCorners
---                         { nw = nw', ne = ne',
---                           sw = sw', se = se',
---                           midX = (fst nw' + fst ne') / 2,
---                           midY = (snd nw' + snd sw') / 2 } in
---          -- TODO not right?
---          (horiz # rotateBy (1/4), newCoords)
-
 -- assuming that d2 is always rectangular; d1 might not be
 tangleAdd :: (Diagram B, TangleCorners) -> (Diagram B, TangleCorners)
           -> (Diagram B, TangleCorners)
@@ -398,25 +287,65 @@ tangleMult (d1, coords1) (d2, coords2) =
                           midY = (fst nw' + fst sw') / 2 } in -- TODO
            tangleAdd (d1', coords1') (d2, coords2)
 
-drawTangle :: Int -> Int -> Diagram B
-drawTangle x y =  
-            let tangleFinal = tangleMult (twistSqH overcross x) (twistSqH overcross y) in
-            mkPolyhedron1 tangleFinal # pad 1.2
-
 -- note to self: natural foldl!
 drawTangleN :: [Int] -> Diagram B
 drawTangleN [] = mempty
-drawTangleN (t:ts) =             
+drawTangleN tangle@(t:ts) =             
             let twistAndMultiply acc n = tangleMult acc (twistSqH overcross n) in
             let tangleFinal = foldl twistAndMultiply (twistSqH overcross t) ts in
-            mkPolyhedron1 tangleFinal # pad 1.2
-   
--- TODO monadically pass around coords
--- TODO display tangle numbers, enumerate all
-main = mainWith $
-     -- TODO confirm that this is right
-     -- TODO crossings rendered badly when img too large
-     -- TODO fix forking at intersections
+            let name = intersperse ' ' $ concatMap show tangle in
+            let knot = mkPolyhedron1 tangleFinal # lw 2.65 # pad 1.4 in
+            -- align text with bottom middle of diagram
+            -- doesn't actually work, but leaving code in case I figure it out
+            let bbox = boundingBox knot in
+            let textp = case getCorners bbox of
+                      Nothing -> p2 (0, 0)
+                      Just (bt_lt, top_rt) ->
+                           let ((bx, by), (tx, ty)) = (unp2 bt_lt, unp2 top_rt) in
+                           p2 (average [bx, tx], by) 
+            in
+            let kcenter = case boxCenter bbox of
+                            Nothing -> p2 (0, 0)
+                            Just c -> c in
+            -- let text_diag = text name # fontSizeL 2
+            --      # font "freeserif" # pad 1.2 # centerX in
+            -- position [(textp, text_diag), (kcenter, knot)]
+            (alignedText 1 1 name # fontSizeL 1.2
+                 # font "freeserif" # pad 1.2 # centerX)
+            === knot
+            -- # pad 1.2
+
+--------------
+
+partitions :: Int -> [[Int]]
+partitions n
+  | n <= 0 = [[]]
+  | otherwise =
+  let choose n = [1, 2 .. n] in
+  let subpartition y = map (y :) $ partitions (n - y) in
+  concatMap subpartition (choose n)
+
+partitionsUpTo :: Int -> [(Int, [[Int]])]
+partitionsUpTo n
+ | n <= 0 = []
+ | otherwise = map (\x -> (x, partitions x)) [1..n]
+
+
+
+rawKnotsTo7Crossings :: Diagram B
+rawKnotsTo7Crossings =
+   let notations = partitionsUpTo 7 in
+   -- TODO break lines into fives and put "knots of n crossings" text
+   -- let drawn = map (\(crossings, tangles) -> (crossings, map drawTangleN tangles))
+   --             notations in
+   let drawn' = map (\(crossings, tangles) -> hcat $ map drawTangleN tangles)
+               notations in
+   vcat drawn'
+
+--------------
+
+testDiagram :: Diagram B
+testDiagram =
      (drawTangleN [1]
      ||| drawTangleN [2]
      ||| drawTangleN [3])
@@ -436,5 +365,12 @@ main = mainWith $
      (drawTangleN [2, 1, 1, 1, 2]
      -- ||| drawTangleN [6, 6, 6, 6, 6, 6]
      ||| drawTangleN [1, 2, 3, 4, 5])
-     -- # centerXY
-     # pad 1.3
+
+   
+-- TODO monadically pass around coords
+-- TODO display tangle numbers, enumerate all
+-- TODO confirm that this is right
+-- TODO crossings rendered badly when img too large
+-- TODO fix forking at intersections
+-- TODO get rid of whitespace and use proportional LW
+main = mainWith $ rawKnotsTo7Crossings # centerXY # pad 1.01
