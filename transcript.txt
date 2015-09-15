@@ -82,13 +82,19 @@ Now we have this twisty thing – how do we make it into a knot? Well, as we sai
 
 Notice that the resulting knots are always alternating (### and reduced). The tangle is (reduced?). 
 
-If we wanted to enumerate all knots up to 4 crossings, how would we do that? Well, notice that each twist introduces exactly one crossing, and every operation combining tangles adds the number of crossings in the tangle. Therefore, to find all knots (in Conway notation) that had 3 crossings, we'd find all ways to divide the number 4 into separate numbers that added up to it.
+If we wanted to enumerate all knots up to 4 crossings, how would we do that? Well, notice that each twist introduces exactly one crossing, and every operation combining tangles adds the number of crossings in the tangle. Therefore, to find all knots (in Conway notation) that had 3 crossings, we'd find all ways to divide the number 4 into separate numbers that added up to it. With one complication: we can have twists indicated by a negative number, but they still add crossings, they don't take crossings away. So we take the absolute value.
+
+all {x_i} :
+n # crossings = \sum_i |x_i|
 
 (example)
 (code here)
 λ> partitions 4
 [[1,1,1,1],[1,1,2],[1,2,1],[1,3],[2,1,1],[2,2],[3,1],[4]]
 
+also [-2] and on... but that increases it by a lot so we won't draw/enumerate it
+
+(TODO update to have negative numbers)
 (TODO my diagrams for knots up to 4 crossings)
 
 That is, every partition of n corresponds to a rational ### knot with n crossings!
@@ -125,9 +131,16 @@ So, (TODO Tait's theorem is useful because it helps us test equivalence of two k
 Now, from knot equivalence to TANGLE EQUIVALENCE, since that's what knots are made of. Two tangles are equivalent if one can be transformed to the other by performing a series of Reidemeister moves on them to transform them into the same tangle, while keeping the ends fixed. One consequence is that, since the ends are fixed, if two knots contain tangles that are all equivalent, the knots are equivalent!
 [cite the guy’s paper on converting knots to tangles]
 
-So, this goes a long way toward helping us check knot equivalence, which is hard and unsolved. @@@ Conway proved a powerful theorem about tangle equivalence: two rational tangles are equivalent if and only if they are represented by the same rational number! This rational number is calculated by taking the tangle’s notation and converting it backward into a continued fraction.
+So, this goes a long way toward helping us check knot equivalence, which is hard and unsolved. @@@ Conway proved a powerful theorem about tangle equivalence: two rational tangles are equivalent if and only if they are represented by the same rational number! This rational number is calculated by taking the tangle’s notation and converting it backward into a continued fraction. The proof of this is non-trivial.
 
-redo tabulation: knots to <= 7 crossings
+Here are two tangles that are equivalent: 
+2 2 = 2 + 1/2 = 5/2
+-2 3 = 3 + 1/-2 = 5/2
+The latter can be converted into the former by rotating the "loop" in the 2-tangle 180 degrees away from us into the plane of the page.
+
+(TODO: more on properties of continued fractions. Can we find all tangles equivalent to a given one; that is, all {xi} : x1 + 1 / x2 + ... xn  = c? Maybe it was in the guy's thesis?)
+
+redo tabulation: knots to <= 7 crossings with negative numbers
 
 The knots up to 7 crossings (and most of the 8-crossing knots) are rational, meaning that they're made of rational tangles, so they're "simpler." But many knots with higher crossing numbers are more complex (not sure if there's a deep reason why, other than that more crossings correlates with more complexity) and can't be written in terms of rational tangles.
 
@@ -143,13 +156,28 @@ Conway's notational system reflected deep structure properties of knots (hoste)
 
 dealing with higher-crossing knots, duplicates, links, polyhedra, other operations
 
+most small knots are alternating, but most knots overall are not alternating.
+
 (TODO refer to knot book, linknot, etc.)
 
 ----------------------- Comparison
 
 [TODO computers vs. humans. knots of large crossing number vs. small crossing number]
 
+"I find it intriguing that the most successful
+modern tabulations don't use all the cleverness that Conway found, and
+instead use DT notation, which is a much more naive notation." (Thurston)
+
+Hoste's paper "The First 1,701,936 Knots":
+
+- Conway is great for small knots and human tabulation because of easy equivalence checking. I assume this accounts for a large part of the boast of "It took Little 6 years to do what I, with my notation, did in one afternoon."
+- But large knots may not be rational and may require other tangle operations and polyhedra, which is complicated, ad-hoc, and doesn't have the same ease of checking equivalence.
+- DT is simple and fast, but needs to be augmented with a lot of equivalence checking machinery. One team took advantage of the fact that all the knots were hyperbolic, which allowed easy equivalence checking, and the other team applied ad-hoc moves like double-passes and Perko moves, then computed invariants.
+- At the same time, I find it incredible that it took 1-2 weeks for their program to tabulate knots of 16 crossings! (p39) Their paper was published in 1998, but that still seems astoundingly slow.
+
 quote Hoste on Conway (large number of primitives) vs what they used, Dowker (both him and Thistlewaite, but needed ad-hoc checks)
+
+most small knots are alternating, but knots in general are non-alternating
 
 [TODO comparison]
 
@@ -169,6 +197,14 @@ Blob of thought in head <-> knot
 Programming language <-> notation or representation
 Program <-> representation for that knot
 
+- Don't get too attached to one notation; 
 - Reduce the problem to cases and special cases, often relying on powerful theorems (focus on prime alternating knots, ignoring mirror images, of small crossing number)
 - Encode insights in your notation, again relying on powerful theorems (Tait flyping conjecture, rational tangle equivalence)
 - A notation has trade-offs along several axes -- sacrifices in one area can lead to big gains in another (e.g. sacrificing those of large crossing number to focus on those of small crossing number; sacrificing ease of encoding for ease of enumeration)
+
+---
+
+Acknowledgments: 
+David Prager Branner (prep)
+Rose Ames (questions)
+Dylan Thurston (knot theory)
