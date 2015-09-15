@@ -1,7 +1,4 @@
-Hi David,
-
-Here’s my talk on knots! (12:35 am, goal = write 3 pages of text today)
-So I want to convince you that (12:50 am) 
+THESIS goes here: 
 
 TODO = section; ### = gap; @@@ = badly phrased; +++ = might need to be moved, *** = diagram
 
@@ -175,6 +172,3 @@ Program <-> representation for that knot
 - Reduce the problem to cases and special cases, often relying on powerful theorems (focus on prime alternating knots, ignoring mirror images, of small crossing number)
 - Encode insights in your notation, again relying on powerful theorems (Tait flyping conjecture, rational tangle equivalence)
 - A notation has trade-offs along several axes -- sacrifices in one area can lead to big gains in another (e.g. sacrificing those of large crossing number to focus on those of small crossing number; sacrificing ease of encoding for ease of enumeration)
-
-Best,
-Katherine
