@@ -148,7 +148,7 @@ Let's try this. [code]
 * Dowker *breaks down* an existing knot; Conway *builds up* a knot.
   Conway builds up a knot from *polyhedra* composed of *tangles*.
   These tangles are composed of *twists* that are combined with various *combinators*.
-
+  
 * Tutorial: write a knot in Conway notation (trefoil -> 3?)
 
 * Tutorial: draw a knot from Conway notation (3 1 2)

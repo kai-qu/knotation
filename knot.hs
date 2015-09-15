@@ -334,7 +334,7 @@ partitionsUpTo n
 
 rawKnotsTo7Crossings :: Diagram B
 rawKnotsTo7Crossings =
-   let notations = partitionsUpTo 3 in
+   let notations = partitionsUpTo 4 in
    -- TODO break lines into fives and put "knots of n crossings" text
    -- let drawn = map (\(crossings, tangles) -> (crossings, map drawTangleN tangles))
    --             notations in

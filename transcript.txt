@@ -5,6 +5,21 @@ So I want to convince you that (12:50 am)
 
 TODO = section; ### = gap; @@@ = badly phrased; +++ = might need to be moved, *** = diagram
 
+emacs: C-x h (select whole buffer), M-= (word count)
+TODO: move to Word when I have pictures
+
+Abstract:
+
+Knots are fascinating, complicated, and inherently visual objects! Here, for example: http://katlas.org/wiki/The_Rolfsen_Knot_Table_Mosaic How do we serialize them into text? 
+
+Serializing knots into text allows us to think about them systematically; for example, we can now use a notation to write out all knots algorithmically. It turns out that enumerating knots is a concrete way to use a notation and compare its quality along various axes. For example, how easy is it for a human to write the notation and draw the corresponding knot? What about for a computer? How easy is it to check if two enumerated knots are equivalent? What new insights and operations can powerful representations enable?
+
+In this talk, we will enumerate all the knots of <= 7 crossings by using notations of two approaches, the Dowker school and the Conway school. (To get the most out of this talk, try this yourself without looking at existing approaches!) Along the way, we will examine the quality of the notations along the axes listed earlier. 
+
+Conway makes the following boast in his seminal paper: "Little [who used a Dowker-style notation] tells us that the enumeration of the 54 knots of [6] took him 6 years -- from 1893 to 1899 -- the notation we shall soon describe made this just one afternoon's work!" We'll see how he accomplished this feat, and what tradeoffs he had to make.
+
+------------------
+
 [TODO thesis] 
 
 [TODO phone]
@@ -70,36 +85,70 @@ Now we have this twisty thing – how do we make it into a knot? Well, as we sai
 
 Notice that the resulting knots are always alternating (### and reduced). The tangle is (reduced?). 
 
-If we wanted to enumerate all knots up to 5 crossings, how would we do that? Well, notice that each twist introduces exactly one crossing, and every operation combining tangles adds the number of crossings in the tangle. Therefore, find all ways to divide the desired number of crossings into separate numbers – all partitions of n. Each partition corresponds to a rational ### knot with that number of crossings! It’s very straightforward!
+If we wanted to enumerate all knots up to 4 crossings, how would we do that? Well, notice that each twist introduces exactly one crossing, and every operation combining tangles adds the number of crossings in the tangle. Therefore, to find all knots (in Conway notation) that had 3 crossings, we'd find all ways to divide the number 4 into separate numbers that added up to it.
 
-pictures: 3 1 1 has 5 crossings...
+(example)
+(code here)
+λ> partitions 4
+[[1,1,1,1],[1,1,2],[1,2,1],[1,3],[2,1,1],[2,2],[3,1],[4]]
 
-(equation here)
+(TODO my diagrams for knots up to 4 crossings)
 
-Reidenmeister moves
+That is, every partition of n corresponds to a rational ### knot with n crossings!
+This can be easily done algorithmically! (TODO code) (TODO equation: there are 2^(n-1) = 2^3 partitions, so 8 diagrams)
 
-flype
+But -- we can easily see that each of the knots in the following groups are the same:
+1 3; 4
+1 1 2; 2 2 (is 2 1 1 the same as 2 2? TODO check against Conway)
+1 2 1; 3 1
+1 1 1 1; 2 1 1
 
-Tait’s theorem (and prime alternating knots)
+which already eliminates half of them (all the ones that start with 1).
 
-concretely enumerating with code
+And these are actually links:
+3 1
+1 3; 4
 
-knots to <= 7 crossings
+knots_to_4.svg
 
-Two tangles are equivalent if one can be transformed to the other by performing a series of Reidemeister moves on them to transform them into the same tangle, while keeping the ends fixed. One consequence is that, since the ends are fixed, if two knots contain tangles that are all equivalent, the knots are equivalent!
+And in fact, [2 2] is the only real knot. It's the figure-8 knot. (diagram) What happened? It seems like we have a lot more work to do!
+
+Quote Hoste: Enumeration is algorithmic; figuring out KNOT EQUIVALENCE is the real hard part! And in fact, this is an unsolved problem! Let's talk about knot equivalence.
+
+Two (projections of) knots are the same knot if and only if they can be transformed into each other via the Reidemeister moves.
+
+Tait's flyping theorem: Two (projections of) prime alternating knots are the same knot if and only if they can be transformed into each other via flypes. This is more minimal, since it's only one move vs. three. A flype is a 180 degree twist of a tangle out of the page, moving a single crossing from one of its sides to the other. (TODO finger flype) And it preserves the crossing number! (TODO look up right statement)
+
+Prime knots are just like prime numbers. A prime knot cannot be decomposed as the sum of two knots, whereas a composite one can. TODO: Menasco proved a powerful theorem about prime knots: a knot is prime iff its diagram "looks" prime!
+
+An alternating knot is one that, as you follow a strand around, alternates going over and under strands. For a while knot theorists thought that only alternating knots existed!
+
+So, (TODO Tait's theorem is useful because it helps us test equivalence of two knots by enumeration! Reidemeister is a good basic definition but not so useful, esp. since we don't necessarily know how to transform notation!)
+
+Now, from knot equivalence to TANGLE EQUIVALENCE, since that's what knots are made of. Two tangles are equivalent if one can be transformed to the other by performing a series of Reidemeister moves on them to transform them into the same tangle, while keeping the ends fixed. One consequence is that, since the ends are fixed, if two knots contain tangles that are all equivalent, the knots are equivalent!
 [cite the guy’s paper on converting knots to tangles]
 
 So, this goes a long way toward helping us check knot equivalence, which is hard and unsolved. @@@ Conway proved a powerful theorem about tangle equivalence: two rational tangles are equivalent if and only if they are represented by the same rational number! This rational number is calculated by taking the tangle’s notation and converting it backward into a continued fraction.
 
+redo tabulation: knots to <= 7 crossings
+
+The knots up to 7 crossings (and most of the 8-crossing knots) are rational, meaning that they're made of rational tangles, so they're "simpler." But many knots with higher crossing numbers are more complex (not sure if there's a deep reason why, other than that more crossings correlates with more complexity) and can't be written in terms of rational tangles.
+
+Rational tangles are what you get when you start with two loops and twist the endpoints some number of times -- so naturally they can be untangled just by twisting. non-rational tangles can't be un-tangled in this simple manner, so they're more complex.
+
 checking equivalence via flypes
-flypes preserve crossing number
+
 ### what’s going on with the flypes? (3, 2, 1, 1) = 7? why write it out? do things under flyping have the same rational fraction? why are we using comma notation? what’s standard form?
 
-is conway’s claim true??
+The main advantage of Conway symbols is the amount of important KL properties that are almost directly visible or can be derived from the codes
+It is very surprising that the Conway notation, the only geometrical-topological notation that gives complete, interpretable and understandable information on KLs is still not widely accepted (linknot)
+Conway's notational system reflected deep structure properties of knots (hoste)
 
 dealing with higher-crossing knots, duplicates, links, polyhedra, other operations
 
 (TODO refer to knot book, linknot, etc.)
+
+----------------------- Comparison
 
 [TODO computers vs. humans. knots of large crossing number vs. small crossing number]
 
@@ -123,9 +172,9 @@ Blob of thought in head <-> knot
 Programming language <-> notation or representation
 Program <-> representation for that knot
 
-Reduce the problem to cases + special cases, often relying on powerful theorems
-Encode insights in your notation, often relying on powerful theorems
-A notation has trade-offs along several axes -- sacrifices in one area can lead to big gains in another
+- Reduce the problem to cases and special cases, often relying on powerful theorems (focus on prime alternating knots, ignoring mirror images, of small crossing number)
+- Encode insights in your notation, again relying on powerful theorems (Tait flyping conjecture, rational tangle equivalence)
+- A notation has trade-offs along several axes -- sacrifices in one area can lead to big gains in another (e.g. sacrificing those of large crossing number to focus on those of small crossing number; sacrificing ease of encoding for ease of enumeration)
 
 Best,
 Katherine
