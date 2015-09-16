@@ -30,7 +30,7 @@ Different notations, powerful notations, knots are cool
 
 ------------------
 
-What's a knot in the fist place?
+What's a knot in the first place?
 
 Our idea of a knot is sort of a shoelace-tying knot with loose ends:
 
@@ -39,11 +39,32 @@ Mathematicians' idea of a knot is basically to tie these ends together, into a l
 And this knot is made of very stretchy string, allowing you to do this (called an isotopy:
 [to trefoil]
 
-[Footnote: you might be wondering how we prove that the trefoil is a knot with three crossings, and not actually the simplest knot, an unknot. Take my word for it for now. TODO]
+We usually talk about the complexity of a knot in terms of the number of crossings it has. A crossing can be an overcrossing or an undercrossing. The simplest knot is the unknot, or a simple loop. We also have links, which are knots of multiple strings. The Olympic rings are an example of a link.
 
+Two (projections of) knots are the same knot if and only if they can be transformed into each other via the Reidemeister moves, which are three moves: [diagram]
+
+In Type I, you twist or untwist the knot.
+In Type II, you move one loop completely over the other.
+In Type III, you move a string completely over or under a crossing.
+[cite Wikipedia]
+
+Now you might be wondering if there ARE any knots. Or if there are any DIFFERENT knots.
+
+More specifically -- how do I know that the trefoil is a knot with minimum three crossings? (We can easily add more crossings, so we're talking about the minimum.) Maybe there's some sequence of moves that can transform it into the unknot. Take my word that there is NO sequence of moves that can do this, so indeed different knots exist. The proof isn't easy. Look up "knot invariants" if you're interested.
+
+Deciding knot equivalence for any two knots is still an open problem, but has been solved for special cases of knots.
+
+--------
+
+TODO: why care about knot theory / what it's good for
+
+--------
+
+Now that we've got the basic knot definitions and operations, let's look at some knots.
 Knots can be very complex. [Knot Atlas]
-Knots seem inherently visual. [unlike graphs]
-They give rise to the following difficulty:
+Knots seem inherently visual. [unlike graphs] Many knot proofs are done entirely via diagram.
+
+Their visuality gives rise to the following difficulty:
 
 Mathematician John Conway:
   One thing I never figured out was how to tell a knot
@@ -62,12 +83,9 @@ But that's not enough information! It could be this one. Or this one.
 
 ------------------
 
-Second: Augment "six crossings" with more information!
+People can share information beforehand. Let's have this information be a common protocol about how to construct the knot. The next most obvious thing to add to the number of crossings is a *direction* on top of the crossing number.
 
-More information = a common protocol about how to draw/construct the knot.
-(More topological terms?)
-The next most obvious thing is to add a *direction* on top of the crossing number
-/ each crossing. We do this by picking a particular crossing, a strand at that crossing, and a direction to travel in on top of that crossing. We label the first crossing with "1", travel around the strand, and label each subsequent crossing with and next number. If there are n crossings, we get 2n numbers.
+We do this by picking a particular crossing, a strand at that crossing, and a direction to travel in on top of that crossing. We label the first crossing with "1", travel around the strand, and label each subsequent crossing with and next number. If there are n crossings, we get 2n numbers.
 
 Every crossing gets an odd and an even number -- why? (exercise)
 
@@ -189,9 +207,11 @@ And in fact, [2 2] is the only real knot. It's the figure-8 knot. (diagram) What
 
 Quote Hoste: Enumeration is algorithmic; figuring out KNOT EQUIVALENCE is the real hard part! And in fact, this is an unsolved problem! Let's talk about knot equivalence.
 
-Two (projections of) knots are the same knot if and only if they can be transformed into each other via the Reidemeister moves.
+Recall that two (projections of) knots are the same knot if and only if they can be transformed into each other via the Reidemeister moves, which are three moves. 
 
-Tait's flyping theorem: Two (projections of) prime alternating knots are the same knot if and only if they can be transformed into each other via flypes. This is more minimal, since it's only one move vs. three. A flype is a 180 degree twist of a tangle out of the page, moving a single crossing from one of its sides to the other. (TODO finger flype) And it preserves the crossing number! (TODO look up right statement)
+Now, if we focus on special kinds of knots, we can cut down these three moves into the more minimal *one* move, the flype.
+
+According to Tait's flyping theorem, two (projections of) prime/reduced (TODO) alternating knots are the same knot if and only if they can be transformed into each other via flypes. This is more minimal, since it's only one move vs. three. A flype is a 180 degree twist of a tangle out of the page, moving a single crossing from one of its sides to the other. (TODO finger flype) And it preserves the crossing number! (TODO look up right statement)
 
 Prime knots are just like prime numbers. A prime knot cannot be decomposed as the sum of two knots, whereas a composite one can. TODO: Menasco proved a powerful theorem about prime knots: a knot is prime iff its diagram "looks" prime!
 
