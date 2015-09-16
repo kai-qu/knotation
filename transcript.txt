@@ -7,19 +7,23 @@ TODO: move to Word when I have pictures
 
 Abstract:
 
+
+
+Summary of talk:
+
 Knots are fascinating, complicated, and inherently visual objects! Here, for example: http://katlas.org/wiki/The_Rolfsen_Knot_Table_Mosaic How do we serialize them into text? 
 
 Serializing knots into text allows us to think about them systematically; for example, we can now use a notation to write out all knots algorithmically. It turns out that enumerating knots is a concrete way to use a notation and compare its quality along various axes. For example, how easy is it for a human to write the notation and draw the corresponding knot? What about for a computer? How easy is it to check if two enumerated knots are equivalent? What new insights and operations can powerful representations enable?
 
 In this talk, we will enumerate all the knots of <= 7 crossings by using notations of two approaches, the Dowker school and the Conway school. (To get the most out of this talk, try this yourself without looking at existing approaches!) Along the way, we will examine the quality of the notations along the axes listed earlier. 
 
-Conway makes the following boast in his seminal paper: "Little [who used a Dowker-style notation] tells us that the enumeration of the 54 knots of [6] took him 6 years -- from 1893 to 1899 -- the notation we shall soon describe made this just one afternoon's work!" We'll see how he accomplished this feat, and what tradeoffs he had to make.
+John Conway made this boast in his seminal paper: "Little [who used a Dowker-style notation] tells us that the enumeration of the 54 knots of [6] took him 6 years -- from 1893 to 1899 -- the notation we shall soon describe made this just one afternoon's work!" We'll see how he accomplished this feat, and what tradeoffs he had to make.
 
 ------------------
 
 [TODO thesis] 
 
-Why talk about these strange loops at at StrangeLoop?
+Why talk about these strange loops at StrangeLoop?
 Takeaways here: 
 
 Different notations, powerful notations, knots are cool
@@ -63,16 +67,19 @@ Second: Augment "six crossings" with more information!
 More information = a common protocol about how to draw/construct the knot.
 (More topological terms?)
 The next most obvious thing is to add a *direction* on top of the crossing number
-/ each crossing. We do this by traveling around the knot.
+/ each crossing. We do this by picking a particular crossing, a strand at that crossing, and a direction to travel in on top of that crossing. We label the first crossing with "1", travel around the strand, and label each subsequent crossing with and next number. If there are n crossings, we get 2n numbers.
 
 Every crossing gets an odd and an even number -- why? (exercise)
+
+We just keep the even numbers.
+
+This can only encode alternating knots (why?), so we create the augmented Dowker notation by adding negative signs when TODO
 
 Give me the Dowker notation for 6_1. 
 This knot has multiple notations, depending on which crossing I start at.
 
 Now, you tell me this notation over the phone. 
-I try to draw 6_1. There are 4 possibilities. 
-This notation corresponds to multiple knots.
+I try to draw 6_1. There are 4 possibilities TODO, since the notation doesn't encode chirality?
 
 notation for a knot:
 
@@ -242,6 +249,14 @@ Hoste's paper "The First 1,701,936 Knots":
 quote Hoste on Conway (large number of primitives) vs what they used, Dowker (both him and Thistlewaite, but needed ad-hoc checks)
 
 most small knots are alternating, but knots in general are non-alternating
+
+Dowker enumeration heuristics: 
+- twist/untwist (nugatory crossings) (example: crossing labeled "1 2" can always be untwisted")
+- easy to detect connected knots
+- throw out all knots whose notations are cyclic permutations (same knots)
+- ignoring chirality
+
+menage problem
 
 [TODO comparison]
 
