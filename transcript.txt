@@ -19,29 +19,93 @@ Conway makes the following boast in his seminal paper: "Little [who used a Dowke
 
 [TODO thesis] 
 
-[TODO phone]
+Why talk about these strange loops at at StrangeLoop?
+Takeaways here: 
 
-[TODO intro to knot theory, applications]
-Shoelace -> Tie ends together [3] -> Trefoil (isotopy)
+Different notations, powerful notations, knots are cool
 
-[TODO Dowker notation]
+------------------
 
-augment with information
+What's a knot in the fist place?
+
+Our idea of a knot is sort of a shoelace-tying knot with loose ends:
+
+Mathematicians' idea of a knot is basically to tie these ends together, into a line embedded in 3-dimensional space: 
+
+And this knot is made of very stretchy string, allowing you to do this (called an isotopy:
+[to trefoil]
+
+[Footnote: you might be wondering how we prove that the trefoil is a knot with three crossings, and not actually the simplest knot, an unknot. Take my word for it for now. TODO]
+
+Knots can be very complex. [Knot Atlas]
+Knots seem inherently visual. [unlike graphs]
+They give rise to the following difficulty:
+
+Mathematician John Conway:
+  One thing I never figured out was how to tell a knot
+  to a nerd over the phone! Keep in mind that the person
+  you're talking to is just as much of a nerd as you are! [1]
+[1] Knot tables exist
+
+Let's try some ways for you to tell me this knot over the phone:
+[six-crossing knot]
+
+First: "It has six crossings!"
+(This is an actual notation, the Alexander-Briggs)
+
+But that's not enough information! It could be this one. Or this one.
+[6_1, 6_2, 6_3...]
+
+------------------
+
+Second: Augment "six crossings" with more information!
+
+More information = a common protocol about how to draw/construct the knot.
+(More topological terms?)
+The next most obvious thing is to add a *direction* on top of the crossing number
+/ each crossing. We do this by traveling around the knot.
+
+Every crossing gets an odd and an even number -- why? (exercise)
+
+Give me the Dowker notation for 6_1. 
+This knot has multiple notations, depending on which crossing I start at.
+
+Now, you tell me this notation over the phone. 
+I try to draw 6_1. There are 4 possibilities. 
+This notation corresponds to multiple knots.
 
 notation for a knot:
 
 knot for a notation:
 
-dealing with links, duplicates 
+cannot encode links
 
-[TODO enumerate with Dowker? should this go here?]
+many notations correspond to a knot (depending on where you start from)
+several knots correspond to a notation (mirror-images) TODO
+
+Every knot is expressible in Dowker notation. If we systematically write out 
+ALL Dowker notations, then we know our knot must be there! [use laziness?]
+
+Cool, so having a notation lets us ENUMERATE all the knots! e.g. for seven crossings. 
+
+-----------------
 
 [TODO enumeration/tabulation + history of + equivalence]
-prime alternating knots of small crossing numbers, ignoring mirror images
+Kelvin, Tait, atoms.
+
+Make numbered knot tables: so nerds can just say "yes, I'm talking about the fifth entry in the Canonical Strange Loop Knot Atlas 2015", and not have to solve this problem again!
+
+Tables useful for DNA, checking hypotheses about knots, special cases, communication among theorists.
+
+Focus on prime alternating knots of small crossing numbers, ignoring mirror images.
+
+------------------
 
 There are two main schools of knot notation, plus some other interesting notations I won’t mention. One school wants to take an existing knot and break it down. From least recent to most recent, this school includes Gauss, Dowker, and Hoste. Another school wants to define “irreducible” bits of a knot and use them to build up a knot. This school includes Kirkman, Conway, and Caudron.  
 
 We talked about Dowker notation and how it breaks down a knot by tracing around it. To draw a knot from Dowker notation, we need to build up the knot, and it might not be unique. @@@ Now let’s talk about how we can define primitives with which to build up a knot. 
+
+------------------
 
 So, let’s talk about Conway notation! 
 
