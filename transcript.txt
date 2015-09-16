@@ -48,7 +48,7 @@ In Type II, you move one loop completely over the other.
 In Type III, you move a string completely over or under a crossing.
 [cite Wikipedia]
 
-Now you might be wondering if there ARE any knots. Or if there are any DIFFERENT knots.
+Now you might be wondering if there ARE any knots. Or if there are any knots DIFFERNT from the unknot.
 
 More specifically -- how do I know that the trefoil is a knot with minimum three crossings? (We can easily add more crossings, so we're talking about the minimum.) Maybe there's some sequence of moves that can transform it into the unknot. Take my word that there is NO sequence of moves that can do this, so indeed different knots exist. The proof isn't easy. Look up "knot invariants" if you're interested.
 
@@ -75,54 +75,92 @@ Mathematician John Conway:
 Let's try some ways for you to tell me this knot over the phone:
 [six-crossing knot]
 
-First: "It has six crossings!"
-(This is an actual notation, the Alexander-Briggs)
+First, you say: "It has six crossings!"
+This is an actual notation: the Alexander-Briggs notation consists of a knot's crossing number, and an arbitrary subscript telling us which of the six-crossing knots it is in some arbitrary order.
 
-But that's not enough information! It could be this one. Or this one.
+But the number of crossings isn't enough information! It could be this knot. Or this one.
 [6_1, 6_2, 6_3...]
 
 ------------------
 
-People can share information beforehand. Let's have this information be a common protocol about how to construct the knot. The next most obvious thing to add to the number of crossings is a *direction* on top of the crossing number.
+You and I can share information beforehand. Let's have this information be a common protocol about how to construct the knot. The next most obvious thing to add to the number of crossings is a *direction* on top of the crossing number.
 
-We do this by picking a particular crossing, a strand at that crossing, and a direction to travel in on top of that crossing. We label the first crossing with "1", travel around the strand, and label each subsequent crossing with and next number. If there are n crossings, we get 2n numbers.
+We do this by picking a particular crossing, a strand at that crossing, and a direction to travel in on top of that crossing. We label the first crossing with "1", travel around the strand, and label each subsequent crossing with the next number.
 
-Every crossing gets an odd and an even number -- why? (exercise)
+For example, for the knot 6_1, we would travel around and get this decorated knot:
+TODO
 
-We just keep the even numbers.
+Writing down each pairing for each crossing, we would get: TODO
+
+Putting all the odd numbers at the top, and sorting all the odd numbers, we get:
+TODO
+
+We just keep the even numbers, so the final notation for 6_1 is: TODO
+
+Here are some properties of Dowker notation. 
+If there are n crossings, we get 2n numbers.
+And every crossing gets an odd and an even number -- why? (exercise TODO)
 
 This can only encode alternating knots (why?), so we create the augmented Dowker notation by adding negative signs when TODO
 
-Give me the Dowker notation for 6_1. 
+On your end, you need to think about correspondence: given a particular knot, does there always exist a notation for it? (Yes.) If so, how many notations correspond to it? (At least the number of crossings -- and more?)
+TODO picture of "bijection"
+TODO: give sender and receiver names? e.g. Maria and Keisha
+
 This knot has multiple notations, depending on which crossing I start at.
+TODO other multiples?
+
+---
 
 Now, you tell me this notation over the phone. 
 I try to draw 6_1. There are 4 possibilities TODO, since the notation doesn't encode chirality?
 
-notation for a knot:
+On my end, I need to think about correspondence the other way: is a given notation even drawable? if so, how many knots correspond to a given notation? if so, how do I actually draw that knot?
 
-knot for a notation:
+(Footnote: These will always be knots; convince yourself that Dowker notation cannot encode links.)
 
-cannot encode links
+TODO: The notation must consist of paired odd and even numbers to be drawable. 
+TODO: From the Dowker notation, we can extract a 4-valent graph (a graph in which each vertex has 4 exiting edges). The knot is drawable if (and only if? TODO) the graph is planar, and then we can use existing planar graph algorithms to draw it.
+(skip going into Charilaos-level detail here)
+TODO: Or, here is an easier and more human algorithm:
 
-many notations correspond to a knot (depending on where you start from)
-several knots correspond to a notation (mirror-images) TODO
+Draw a line starting with 1-, 2-, ... until you reach ... and then ...
+(skip going into detail here)
 
-Every knot is expressible in Dowker notation. If we systematically write out 
-ALL Dowker notations, then we know our knot must be there! [use laziness?]
+[diagrams]
+
+So you could have communicated any of the following knots to me:
+TODO
+
+Not bad! And if we adopt a common protocol (TODO: only alternating knots / ignoring chirality), then we can narrow down the transmitted knot to just one or two!
+
+Now that we've successfully serialized and deserialized a knot over the phone, what does that buy us?
+
+Well, EVERY knot is expressible in Dowker notation. If we systematically write out 
+ALL Dowker notations, then we know our knot must be there!
 
 Cool, so having a notation lets us ENUMERATE all the knots! e.g. for seven crossings. 
 
 -----------------
 
 [TODO enumeration/tabulation + history of + equivalence]
-Kelvin, Tait, atoms.
+
+Kelvin: Atoms are knotted vortices in the ether!
+Tait: I will enumerate the knots and thus unlock THE SECRETS OF THE UNIVERSE
+Following knot theorists: uh
+Following knot theorists: OK, I will still enumerate the knots
+
+Uses of enumeration:
 
 Make numbered knot tables: so nerds can just say "yes, I'm talking about the fifth entry in the Canonical Strange Loop Knot Atlas 2015", and not have to solve this problem again!
 
 Tables useful for DNA, checking hypotheses about knots, special cases, communication among theorists.
 
+Basic strategy: enumerate-and-equivalent
+
 Focus on prime alternating knots of small crossing numbers, ignoring mirror images.
+
+(Cite Hoste's 2 papers)
 
 ------------------
 
