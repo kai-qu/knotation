@@ -1,5 +1,3 @@
-THESIS goes here: 
-
 TODO = section; ### = gap; @@@ = badly phrased; +++ = might need to be moved, *** = diagram
 
 emacs: C-x h (select whole buffer), M-= (word count)
@@ -9,7 +7,7 @@ Abstract:
 
 
 
-Summary of talk:
+Summary of talk: (235 words)
 
 Knots are fascinating, complicated, and inherently visual objects! Here, for example: http://katlas.org/wiki/The_Rolfsen_Knot_Table_Mosaic How do we serialize them into text? 
 
@@ -139,6 +137,14 @@ Now that we've successfully serialized and deserialized a knot over the phone, w
 Well, EVERY knot is expressible in Dowker notation. If we systematically write out 
 ALL Dowker notations, then we know our knot must be there!
 
+To enumerate all the knots up to 7 crossings, we write out all permutations of 
+union over 1 through 7 of (2, 4, 6, ... of length (number of crossings)).
+
+TODO TODO TODO :( code goes here ***
+
+We've already covered which notations correspond to valid and drawable knots. 
+Dowker equivalence is hard to handle and involves knot invariants, so I won't cover this part due to lack of time. Drawing algorithmically is also hard and is the subject of at least one undergraduate and PhD honors thesis, so I won't cover it here either. The actual knots are: TODO
+
 Cool, so having a notation lets us ENUMERATE all the knots! e.g. for seven crossings. 
 
 -----------------
@@ -155,6 +161,8 @@ Knot theorists: well...
 First, tables are useful for shared knowledge and communication: nerds can just say "yes, I'm talking about the fifth knot with six crossings in the Canonical Strange Loop Knot Atlas 2015", and not have to solve this problem again! (This is Alexander-Briggs notation)
 
 The tables are useful for checking hypotheses about knots and finding special cases. Also, we've had to develop new math to do this enumeration, which theorists think is worthwhile in itself!
+
+"We hope that the census will serve as a rich source of examples and counterexamples and as a general testing ground for our collective intuition." (Hoste)
 
 The basic strategy is to enumerate all knots up to a certain number of crossings, then group or eliminate the equivalent ones. 
 
@@ -266,7 +274,13 @@ And these are actually links:
 
 knots_to_4.svg
 
-And in fact, [2 2] is the only real knot. It's the figure-8 knot. (diagram) What happened? It seems like we have a lot more work to do!
+And in fact, [2 2] is the only real knot. It's the figure-8 knot. (diagram) What happened? 
+
+Let's use the same process to enumerate all knots up to 7 crossings: ***
+TODO
+(Again, need to eliminate equivalents)
+
+It seems like we have a lot more work to do!
 
 Quote Hoste: 
 
@@ -313,75 +327,119 @@ The knots up to 7 crossings (and most of the 8-crossing knots) are made of ratio
 But we CAN use another equivalence checking technique:
 "The reader should now be able to interpret any knot name taken from out table, but he will not yet appreciate the reasons which make our ragbag of conventions so suspiciously efficient at naming small knots. Much of this efficiency arises from the fact that the notation absorbs Tait's 'flyping' notation (Fig. 7), which replaces 1 + t by t_h + 1, or 1bar + t by t_h + 1bar."
 
-checking equivalence via flypes
+I won't go into this in detail, but in short, Conway's notation gives rise to a "standard form" for both algebraic and rational tangles. Converting a knot into its standard form squashes and cancels out its flypes, so any knots that can be converted into the same standard form are equivalent. Conway doesn't give a general algorithm to enumerate all flype-equivalent knots, but this seems do-able, and is left as an exercise for the reader!
+(TODO relate to reduced/alternating diagrams?)
 
-### what’s going on with the flypes? (3, 2, 1, 1) = 7? why write it out? do things under flyping have the same rational fraction? why are we using comma notation? what’s standard form?
+Finishing our enumeration of knots up to 7 crossings, we're left with the following knots: ***
+TODO
 
-The main advantage of Conway symbols is the amount of important KL properties that are almost directly visible or can be derived from the codes
-It is very surprising that the Conway notation, the only geometrical-topological notation that gives complete, interpretable and understandable information on KLs is still not widely accepted (linknot)
-Conway's notational system reflected deep structure properties of knots (hoste)
+which match the knots in the table of answers!
 
-Now that we've talked about advantages of Conway's notation, here are some of its disadvantages.
+In summary:
 
-dealing with higher-crossing knots, duplicates, links, polyhedra, other operations
+"The main advantage of Conway symbols is the amount of important KL properties that are almost directly visible or can be derived from the codes."
 
-most small knots are alternating, but most knots overall are not alternating.
+"Conway's notational system reflected deep structural properties of knots" (Hoste).
 
-(TODO refer to knot book, linknot, etc.)
+By proving and relying on powerful theorems, Conway created a notation that is extremely good at dealing with equivalence for knots of lower crossing and for special cases of knots of higher crossing. This explains how he was able to do in "one afternoon" by hand what took Little "six years" to do by hand. It falls over on higher-crossing knots though.
 
------------------------ Comparison
+However, it's not so good at dealing with knots of higher crossing number. Those require special "polyhedra" besides the 1* we dealt with (see pictures), which are ad-hoc (quote thesis). They also require non-rational tangles, which require special operations besides simple multiplication. Lastly, we lose the ability to definitively check tangle equivalence, and thus knot equivalence, for more complex knots.
 
-[TODO computers vs. humans. knots of large crossing number vs. small crossing number]
+Also in general, most small knots are alternating (which are the ones we've been focusing on in this talk), but knots in general are non-alternating.
+
+So what DO we do for knots of higher crossing number? Do we stick it out with Conway, or do we go back to Dowker? 
+
+------------------
 
 "I find it intriguing that the most successful
 modern tabulations don't use all the cleverness that Conway found, and
-instead use DT notation, which is a much more naive notation." (Thurston)
+instead use [Dowker] notation, which is a much more naive notation." (Thurston)
 
-Hoste's paper "The First 1,701,936 Knots":
+This paper has one of the most delightful titles I've ever encountered: "The First 1,701,936 Knots." Co-written by that "Hoste" guy I've been quoting throughout this talk, it outlines the efforts of two teams to tabulate the prime knots with 16 or fewer crossings. The teams worked completely separately and secretly and compared their complete tabulations with the following result:
 
-- Conway is great for small knots and human tabulation because of easy equivalence checking. I assume this accounts for a large part of the boast of "It took Little 6 years to do what I, with my notation, did in one afternoon."
-- But large knots may not be rational and may require other tangle operations and polyhedra, which is complicated, ad-hoc, and doesn't have the same ease of checking equivalence.
-- DT is simple and fast, but needs to be augmented with a lot of equivalence checking machinery. One team took advantage of the fact that all the knots were hyperbolic, which allowed easy equivalence checking, and the other team applied ad-hoc moves like double-passes and Perko moves, then computed invariants.
-- At the same time, I find it incredible that it took 1-2 weeks for their program to tabulate knots of 16 crossings! (p39) Their paper was published in 1998, but that still seems astoundingly slow.
+"We must report the gratifying experience of finding that our lists of 1,701,936 knots were in complete agreement!"
 
-quote Hoste on Conway (large number of primitives) vs what they used, Dowker (both him and Thistlewaite, but needed ad-hoc checks)
+Both teams used DT, which they reported was simple and fast, but needs to be augmented with a lot of equivalence checking machinery. 
 
-most small knots are alternating, but knots in general are non-alternating
+"The primary advantage of DT seems to be its brevity. With over 6 billion knots and links now in the tables, using as little computer memory as possible has obvious value.
+On the other hand, DT sequences are not easily transformed directly under the types of operations that need to be applied to diagrams in the course of a tabulation. Instead, it is usually necessary to derive additional, attendant information about the diagram, such as the signs of the crossings..."
 
-Dowker enumeration heuristics: 
-- twist/untwist (nugatory crossings) (example: crossing labeled "1 2" can always be untwisted")
-- easy to detect connected knots
+One team took advantage of the fact that all the knots were hyperbolic, which allowed easy equivalence checking, and the other team applied flypes and ad-hoc moves like double-passes and Perko moves, then computed invariants.
+
+Here are more Dowker enumeration heuristics: 
+- twist/untwist (nugatory crossings) (example: crossing labeled "1 2" can always be untwisted, so throw away all such knots)
+- easy to detect connected knots (sub-adjacent permutations)
 - throw out all knots whose notations are cyclic permutations (same knots)
-- ignoring chirality
+  or moving in the other direction
 
-menage problem
+At the same time, I find it incredible that it took 1-2 weeks for their program to tabulate knots of 16 crossings! (p39) Their paper was published in 1998, but that still seems astoundingly slow. Listeners and readers -- can YOU do better?
 
-[TODO comparison]
+Here's what Hoste says about Conway's notation, applied to large crossing numbers:
+"Conway's scheme draws on a large set of symbols arranged according to a rather large set of rules, both of which grow with crossing number, and for this reason does not lend itself well to computer programming."
 
-Breaking down objects vs. building them up
-Notation to object correspondence: one-to-many, many-to-one
-Human readability/writability
-Machine readability/writability
-Simplicity (number of symbols and functions)
-Ease of performing operations on the represented object
-Ease of reading properties off notation
-Insights it encodes
-New manipulations and ways of thinking it encourages
+That's too bad!
+[TODO need something more quotable]
 
-[TODO lessons]
+------------------------
 
-Blob of thought in head <-> knot
-Programming language <-> notation or representation
-Program <-> representation for that knot
+In summary, here are important axes of knot notation, and notation in general: 
+[TODO 3D picture]
 
-- Don't get too attached to one notation; 
+- Breaking down objects vs. building them up
+- Notation to object correspondence: one-to-many, many-to-one
+- Human readability/writability
+- Machine readability/writability
+- Simplicity (number of symbols and functions)
+- Ease of performing operations on the represented object
+- Ease of reading properties off notation
+- Insights it encodes
+- New manipulations and ways of thinking it encourages
+
+Programming language researchers and enthusiasts love thinking about powerful notations. One could make a case that:
+
+A blob of thought in your head corresponds to a knot,
+a programming language corresponds to a notation or representation, and
+a program corresponds to a representation for that knot.
+
+Taking this analogy further is up to you and your own experience and work.
+
+And here are the knot-independent takeaways:
+
 - Reduce the problem to cases and special cases, often relying on powerful theorems (focus on prime alternating knots, ignoring mirror images, of small crossing number)
 - Encode insights in your notation, again relying on powerful theorems (Tait flyping conjecture, rational tangle equivalence)
 - A notation has trade-offs along several axes -- sacrifices in one area can lead to big gains in another (e.g. sacrificing those of large crossing number to focus on those of small crossing number; sacrificing ease of encoding for ease of enumeration)
+- Lastly, don't get too attached to one notation or representation; there can be something really interesting, unexpected, or interdisciplinary waiting for you to discover or invent it!
+
+TODO: need something more quotable
+
+Thanks!
+
+-----------------------
+
+Acknowledgments: 
+
+David Prager Branner (discussions and deadlines)
+Rose Ames (questions and deadlines)
+Dylan Thurston (knot theory)
+Practice talk listeners
 
 ---
 
-Acknowledgments: 
-David Prager Branner (prep)
-Rose Ames (questions)
-Dylan Thurston (knot theory)
+Sources:
+
+Conway's paper
+The Knot Book
+Hoste (1)
+Hoste (2)
+LinKnot
+Rational Tangles
+Genius At Play
+The Mystery of Knots
+Various undergraduate honors theses
+KnotPlot thesis
+
+---
+
+Footnotes: 
+
+
