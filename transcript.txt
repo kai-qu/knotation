@@ -143,71 +143,96 @@ Cool, so having a notation lets us ENUMERATE all the knots! e.g. for seven cross
 
 -----------------
 
-[TODO enumeration/tabulation + history of + equivalence]
-
+1870
 Kelvin: Atoms are knotted vortices in the ether!
 Tait: I will enumerate the knots and thus unlock THE SECRETS OF THE UNIVERSE
-Following knot theorists: uh
-Following knot theorists: OK, I will still enumerate the knots
+(30 years pass)
+Knot theorists: preeettty sure that atoms aren't knots
+Knot theorists: lol gonna enumerate them anyway
+You: but why?
+Knot theorists: well...
 
-Uses of enumeration:
+First, tables are useful for shared knowledge and communication: nerds can just say "yes, I'm talking about the fifth knot with six crossings in the Canonical Strange Loop Knot Atlas 2015", and not have to solve this problem again! (This is Alexander-Briggs notation)
 
-Make numbered knot tables: so nerds can just say "yes, I'm talking about the fifth entry in the Canonical Strange Loop Knot Atlas 2015", and not have to solve this problem again!
+The tables are useful for checking hypotheses about knots and finding special cases. Also, we've had to develop new math to do this enumeration, which theorists think is worthwhile in itself!
 
-Tables useful for DNA, checking hypotheses about knots, special cases, communication among theorists.
+The basic strategy is to enumerate all knots up to a certain number of crossings, then group or eliminate the equivalent ones. 
 
-Basic strategy: enumerate-and-equivalent
-
-Focus on prime alternating knots of small crossing numbers, ignoring mirror images.
+More specifically, we use powerful theorems to reduce a general enumeration problem to an enumeration of special cases. We focus on prime alternating knots, ignoring mirror images (knots reflected over an axis). I'll cover why we do this later.
 
 (Cite Hoste's 2 papers)
 
 ------------------
 
-There are two main schools of knot notation, plus some other interesting notations I won’t mention. One school wants to take an existing knot and break it down. From least recent to most recent, this school includes Gauss, Dowker, and Hoste. Another school wants to define “irreducible” bits of a knot and use them to build up a knot. This school includes Kirkman, Conway, and Caudron.  
+(segue into Conway)
 
-We talked about Dowker notation and how it breaks down a knot by tracing around it. To draw a knot from Dowker notation, we need to build up the knot, and it might not be unique. @@@ Now let’s talk about how we can define primitives with which to build up a knot. 
+To put Dowker notation in context: there are many knot notations. Some of you may have even come up with one before or during this talk! 
+
+However, there are two *main* schools of knot notation, plus other interesting notations I won’t mention. One school wants to take an existing knot and break it down. From least recent to most recent, this school includes Gauss from the 1800s (yes, that Gauss TODO), Tait from 1890, Dowker from 1980, and Hoste from 1990. Another school wants to define “irreducible” bits of a knot and use them to build up a knot. This school includes Kirkman from 1880, Conway from 1950, and Caudron from 1980. 
+
+TODO: timeline image 
+
+We talked about Dowker notation and how it breaks down a knot in terms of direction and crossings. To draw a knot from Dowker notation -- if it is drawable (it might not be), we need to build up the knot, and it might not be unique. Now let’s talk about another approach -- how we can define primitives with which to build up a knot. 
 
 ------------------
-
-So, let’s talk about Conway notation! 
-
-notation for a knot:
-
-knot for a notation: 
-
-The other way: to write a Conway notation from a knot, we need to break down the knot into the primitives, and it may not be unique; but on the other hand, drawing the knot is unique and easy! 
 
 As a hook, take this tantalizing quote from Conway’s seminal paper: "Little tells us that the enumeration of the 54 knots of [6] took him 6 years -- from 1893 to 1899 -- the notation we shall soon describe made this just one afternoon's work!" 
 
 And this quote: “The enumeration process is eminently suitable for machine computation ... recent attempts at computer enumeration have proved unsatisfactory mainly because of the lack of a suitable notation.” 
 
-How did Conway accomplish this? Namely, how did he invent a notation or representation of knots that enabled him to enumerate them so much more easily and efficiently? Let’s find out! First let’s talk about the primitives that he defined, which are twists; what operations we can do on these primitives to make them become tangles, and what we can do to tangles to make them become knots.
+How did Conway accomplish this feat? Namely, how did he invent a notation or representation of knots that enabled him to enumerate them so much more easily and efficiently? Let’s find out! First let’s talk about the primitives that he defined, which are twists; what operations we can do on these primitives to make them become tangles, and what we can do to tangles to make them become knots. Then we'll go over the "tell a knot to a nerd over the phone" Conway-style, then knot-to-notation correspondences, use in enumeration, and tradeoffs.
 
-A tangle 
+A tangle is built by starting with two ropes with ends in the four corners of a circle. The corners are (clockwise) SW, NW, NE, SE. 
+The beginning tangles are either the 0 or infinity tangle.
 [cite Piponi, tangle dance]
-
-A tangle is built by starting with two ropes with ends in the four corners of a circle: ***
-They’re either the 0 or infinity tangle.
 
 Then, we twist the tangle either once upward or once downward.
 
-Tangle as datatype:
-0 | inf | twist up | twist down | add tangle tangle | mult tangle tangle | (reflect?)
-(3 is shorthand for adding 1 1 1)
-
-We add two tangles by simply smashing them together. ***
+We add two tangles by simply smashing them together. That is, we join the NE corner of the first tangle with the NW corner of the second tangle, and likewise with the SW corner of the first tangle with the SW corner of the second tangle.
 
 We multiply two tangles by reflecting the first one over the northwest-southeast diagonal, then adding it to the second one. The reflection can also be done by reversing all the crossings (undercrossing to overcrossing and vice versa) and rotating the tangle by 90 degrees clockwise. ***
 
-We can twist a tangle multiple times by adding multiple 1 tangles. So, we’ll use, say, “3” as a synonym for “1 + 1 + 1”. 
-### 1 1 1 ... 1 is not in general the same as n, right
+We can twist a tangle multiple times by adding multiple 1 tangles. So, we’ll use, say, “3” as a synonym for “1 + 1 + 1”. "-3" is a synonym for "-1 + -1 + -1".
+### 1 1 1 ... 1 is not in general the same as n
+
+(TODO: cover the alternate method that eliminates reflection?)
+(TODO: Rose's questions about how this seems arbitrary -- why 2 strings, 4 corners, these weird operations?)
+
+Now we have this twisty thing – how do we make it into a knot? Well, as we said earlier, we have these (### irreducible) components. We pick a structure called a polyhedron and insert these tangles into the structure. (TODO won’t elaborate more on this) The default polyhedron we're using is the 1* polyhedron, which looks like this: (Basically we connect the NW and NE corners, and the SW and SE corners.)
+
+(TODO: I don't think this is right. Consider 1 1 -2 -- nonalternating? Is it alternating for all positive integers? What about page 318 of Goldman/Kauffman? Can we prove this by saying that each individual strand is alternating?)
+Notice that the resulting knots are always alternating (### and reduced / prime?).Here's a fuzzy inductive proof: The 1 knot is alternating because the overstrand is connected to the understrand, the knots of twists alternate because a twist always brings the overstrand to the top. The knots of muliplied tangles alternate because, given that the knots of the individual tangles ....
+
+Now that we know the initial tangles and operations, we will name kinds of tangles, from simple to complex. Integral tangles are simple twists of some number of times: 1, -1, 3 = 1 + 1 + 1, -3 = -1 + -1 + -1.
+
+Rational tangles are what you get when you start with two loops and twist the endpoints some number of times -- so naturally they can be untangled just by twisting. In other words, any tangle that looks like "x_1 x_2 ... x_n", or is formed by multiplying tangles in this way. (TODO: string/animation?)
 
 Footnote on DNA (cite Chicago paper)
 
-Now we have this twisty thing – how do we make it into a knot? Well, as we said earlier, we have these (### irreducible) components. We pick a structure called a polyhedron and insert these tangles into the structure. (TODO won’t elaborate more on this)
+Algebraic tangles are more tangles formed by any combination of the operations above. In general, multiplying two tangles always results in a tangle that can be untwisted at the ends, but adding them might not. So, algebraic tangles more complex.
+Consider 3 + 3, or (3, 3) -- it can't be untangled. (Adams)
 
-Notice that the resulting knots are always alternating (### and reduced). The tangle is (reduced?). 
+(Rational) tangle as datatype:
+0 | inf | twist up | twist down | mult tangle tangle 
+(where mult is implemented as (reflect = convert all horiz twists to vertical and vice versa, and convert all up twists to down twists and vice versa + add on the coords) -- add is hidden. is this right?)
+
+(Algebraic) tangle as datatype:
+0 | inf | twist up | twist down | add tangle tangle | mult tangle tangle 
+(TODO fix these)
+
+----
+
+Tell someone a knot (6_?) over the phone: Conway-style! TODO
+
+You try to write the knot 6_? in terms of Conway notation -- it's not easy! I don't know if a proof exists that every knot has a Conway notation, but I haven't found any counterexamples. (From Conway's biography: Not all knots are good enough to have a notation in my system, and I don't know really what to do when they are not." (425) "Genius At Play") I don't even know if algorithms exist for transforming a knot diagram into a series of tangles. (TODO: the thesis paper?) 
+
+And if 6_? has at least one notation, can it have multiple? The answer is yes! (TODO example, also LinKnot p52)
+
+So, note that this part is a lot harder than it was for Dowker. 
+
+On the other hard, when I draw the knot that you give me, it's easy! There's a well-defined algorithm, and a notation corresponds to exactly one knot. It's so easy that you could program a computer to draw knots in a day! Which I did. [pictures and code] (used Haskell, diagrams)
+
+----
 
 If we wanted to enumerate all knots up to 4 crossings, how would we do that? Well, notice that each twist introduces exactly one crossing, and every operation combining tangles adds the number of crossings in the tangle. Therefore, to find all knots (in Conway notation) that had 3 crossings, we'd find all ways to divide the number 4 into separate numbers that added up to it. With one complication: we can have twists indicated by a negative number, but they still add crossings, they don't take crossings away. So we take the absolute value.
 
@@ -243,19 +268,29 @@ knots_to_4.svg
 
 And in fact, [2 2] is the only real knot. It's the figure-8 knot. (diagram) What happened? It seems like we have a lot more work to do!
 
-Quote Hoste: Enumeration is algorithmic; figuring out KNOT EQUIVALENCE is the real hard part! And in fact, this is an unsolved problem! Let's talk about knot equivalence.
+Quote Hoste: 
+
+"Indeed, it is the task of grouping the diagrams together by knot type rather than enumerating all possible diagrams that remains to this day the most difficult part of knot tabulation, for producing all possible diagrams is algorithmic and therefore, at least theoretically, trivial. 
+
+(However, for a large crossing number, the sheer number of possible combinations is so huge that even with today's [1998] high-sped computers, the task of enumerating all possible diagrams remains difficult in practice.)" 
+(* It took them 1-2 weeks for knots of 16 crossings!)
+
+Enumeration is algorithmic; figuring out KNOT EQUIVALENCE is the real hard part! And in fact, again, this is an unsolved problem! Let's talk about knot equivalence WRT Conway's tangles, briefly touching on equivalence WRT Dowker.
 
 Recall that two (projections of) knots are the same knot if and only if they can be transformed into each other via the Reidemeister moves, which are three moves. 
 
-Now, if we focus on special kinds of knots, we can cut down these three moves into the more minimal *one* move, the flype.
+Now, if we focus on special kinds of knots, we can cut down these three moves into the more minimal *one* move, the flype. This makes checking for equivalence easier.
 
-According to Tait's flyping theorem, two (projections of) prime/reduced (TODO) alternating knots are the same knot if and only if they can be transformed into each other via flypes. This is more minimal, since it's only one move vs. three. A flype is a 180 degree twist of a tangle out of the page, moving a single crossing from one of its sides to the other. (TODO finger flype) And it preserves the crossing number! (TODO look up right statement)
-
-Prime knots are just like prime numbers. A prime knot cannot be decomposed as the sum of two knots, whereas a composite one can. TODO: Menasco proved a powerful theorem about prime knots: a knot is prime iff its diagram "looks" prime!
+First, two definitions. Knots, surprisingly, behave a lot like numbers -- they can be prime or composite. Prime knots are just like prime numbers. A prime knot cannot be decomposed as the sum of two knots, whereas a composite one can. Menasco proved a powerful theorem about prime knots: a knot is prime iff its diagram "looks" prime; that is, we can separate two knots just by looking at any diagram of the knot..
 
 An alternating knot is one that, as you follow a strand around, alternates going over and under strands. For a while knot theorists thought that only alternating knots existed!
 
-So, (TODO Tait's theorem is useful because it helps us test equivalence of two knots by enumeration! Reidemeister is a good basic definition but not so useful, esp. since we don't necessarily know how to transform notation!)
+Now the theorem: according to Tait's flyping theorem, two (projections of) prime/reduced (TODO) alternating knots are the same knot if and only if they can be transformed into each other via flypes. A flype is a 180 degree twist of a tangle out of the page, moving a single crossing from one of its sides to the other. (TODO finger flype) And it preserves the crossing number! (TODO look up right statement)
+
+So, by applying all possible flypes to a reduced alternating diagram, we get exactly all the reduced alternating diagrams that it's equivalent to. Tait's theorem makes checking equivalence much more algorithmic, whereas Reidemeister moves are a good basic definition, but can increase the crossing number of the knot.
+(TODO: runtime? proof of termination?)
+
+(TODO: why put flypes here if I'm not going to talk about Conway flype stuff until later??)
 
 Now, from knot equivalence to TANGLE EQUIVALENCE, since that's what knots are made of. Two tangles are equivalent if one can be transformed to the other by performing a series of Reidemeister moves on them to transform them into the same tangle, while keeping the ends fixed. One consequence is that, since the ends are fixed, if two knots contain tangles that are all equivalent, the knots are equivalent!
 [cite the guy’s paper on converting knots to tangles]
@@ -269,11 +304,14 @@ The latter can be converted into the former by rotating the "loop" in the 2-tang
 
 (TODO: more on properties of continued fractions. Can we find all tangles equivalent to a given one; that is, all {xi} : x1 + 1 / x2 + ... xn  = c? Maybe it was in the guy's thesis?)
 
-redo tabulation: knots to <= 7 crossings with negative numbers
+This is a TRULY REMARKABLE result! Why should knots have anything to do with continued fractions and rational numbers?!?! (TODO intuition)
 
-The knots up to 7 crossings (and most of the 8-crossing knots) are rational, meaning that they're made of rational tangles, so they're "simpler." But many knots with higher crossing numbers are more complex (not sure if there's a deep reason why, other than that more crossings correlates with more complexity) and can't be written in terms of rational tangles.
+Can it be used to decide equivalence of any knot? Unfortunately not. We don't know if we can write every knot in terms of tangles, and more importantly, there exist knots that can't be written as RATIONAL tangles.
 
-Rational tangles are what you get when you start with two loops and twist the endpoints some number of times -- so naturally they can be untangled just by twisting. non-rational tangles can't be un-tangled in this simple manner, so they're more complex.
+The knots up to 7 crossings (and most of the 8-crossing knots) are made of rational tangles, so they're "simpler." (Recall that rational tangles can be easily untangled by alternating twists on adjacent endpoints.) But many knots with higher crossing numbers are more complex; (not sure if there's a deep reason why, other than that more crossings correlates with more complexity) and can't be written in terms of rational tangles. So for these, we can't use the fraction equivalence technique.
+
+But we CAN use another equivalence checking technique:
+"The reader should now be able to interpret any knot name taken from out table, but he will not yet appreciate the reasons which make our ragbag of conventions so suspiciously efficient at naming small knots. Much of this efficiency arises from the fact that the notation absorbs Tait's 'flyping' notation (Fig. 7), which replaces 1 + t by t_h + 1, or 1bar + t by t_h + 1bar."
 
 checking equivalence via flypes
 
@@ -282,6 +320,8 @@ checking equivalence via flypes
 The main advantage of Conway symbols is the amount of important KL properties that are almost directly visible or can be derived from the codes
 It is very surprising that the Conway notation, the only geometrical-topological notation that gives complete, interpretable and understandable information on KLs is still not widely accepted (linknot)
 Conway's notational system reflected deep structure properties of knots (hoste)
+
+Now that we've talked about advantages of Conway's notation, here are some of its disadvantages.
 
 dealing with higher-crossing knots, duplicates, links, polyhedra, other operations
 
