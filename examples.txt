@@ -1,9 +1,19 @@
+Slides order:
+
+Pictures <-- (a few more)
+Quotes <-- 
+Code <--
+Headings
+Words
+
+===
+
 Missing important examples:
 
-Drawing Dowker: human algo
-Enumerating Dowker code
+Drawing Dowker: human algo X
+Enumerating Dowker code X
 
-Tangle alternate method
+Tangle alternate methodx
 Conway enumeration/partition code
 Tangle ADT
 Conway with negatives
