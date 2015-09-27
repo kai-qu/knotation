@@ -1,4 +1,18 @@
--- Needed for `diagrams`
+{- This code draws the raw knots and links up to n crossings, using the `diagrams` library, and gives their Conway notation. It doesn't filter out links or equivalent knots/links.
+
+ Top-level approach: the code draws crossings, puts crossings next to each other to form twists, flips and adds twists/tangles to form tangles, and puts the resulting tangle in the 1* polyhedron (connects the NW and NE corners, and the SW and SE corners). Everything is connected with straight lines. If you figure out a nice way to spline/curve the entire knot, let me know!
+
+To combine diagrams, it explicitly passes around information about its location (corners, middle), calculates the new location of the combined diagram, and returns that. This could probably be done monadically.
+
+To change the number of crossings: change the number marked CHANGE THIS.
+Increaseing the number of crossings will make the diagram larger, which will make the lines really thick for some reason, so you'll also need to change the line width, also marked CHANGE THIS.
+
+Oh, and there are a lot of TODOs.
+
+Related work: KnotPlot plots knots in Conway notation in 3D. 
+(Last updated 9/26/15) -}
+
+-- Needed for `diagrams` library
 {-# LANGUAGE NoMonomorphismRestriction, FlexibleContexts, TypeFamilies #-}
 
 import Data.List
@@ -6,34 +20,17 @@ import Diagrams.Prelude
 import Diagrams.Backend.SVG.CmdLine
 import Diagrams.BoundingBox
 
+-- To compile and generate image:
+-- alias chrome '/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --kiosk' 
+-- (That is, in the `fish` shell, I use this command to tell Chrome to open something)
 -- ghc --make knot.hs; ./knot -o knot.svg -h 500; chrome knot.svg
+-- -h controls the height. You can also use -w. 
 
--- unused
-type Twist = Int
-type Polyhedron = Int
-type ConwayNotation = ([Twist], Polyhedron)
+----------
 
-trefoil :: ConwayNotation
-trefoil = ([3], 1)
-
--- goal for now
-figure8 :: ConwayNotation
-figure8 = ([2, 2], 1)
-
-stevedore :: ConwayNotation
-stevedore = ([4, 2], 1)
-
-six_2 :: ConwayNotation
-six_2 = ([3, 1, 2], 1)
-
-six_3 :: ConwayNotation
-six_3 = ([2, 1, 1, 2], 1)
-
------------
-
--- Code to generate knots and filter out (lower-crossing knots / links / dups)
-
--- given # crossings, produce all knots with that # crossings
+-- given # crossings, produce all knots (Dowker) with that # crossings 
+-- includes duplicates and undrawable notations; ignores non-alternating knots
+-- not used in the rest of the code, just for demonstration
 dowkers :: Int -> [[(Int, Int)]]
 dowkers n
   | n <= 0 = []
@@ -48,10 +45,9 @@ dowkers n
 - Straight lines for Conway instead -- but how to prevent self-intersection?
 - Can a spline through every knot point (in order) work? But then how to articulate the crossings? 
 - Maybe a spline through each segment. But how to calculate the segments? And how to figure out the extra control points?
-- Twists: should only draw (n - 2) of them; the 2 crossings at the end need to be part of the splines that connect to other twists 
+- Twists: should only draw (n - 2) of them; the 2 crossings at the end need to be part of the splines that connect to other twists -}
 
-To draw: trefoil, [2 1]; [2 1 2]; [3 3 3]... -}
-
+-- Draw twists
 w = 1                           -- total width
 h = 4                      -- total height
 offCenter = 0.2
@@ -92,7 +88,6 @@ cubicSplineEx = twist 3 (0, 0) # rotateBy (1/4)
 -------
 
 -- Draw the 1* polyhedron
-
 type Pt = (Double, Double)
 data TangleCorners = TangleCorners { -- northwest, northeast, etc. + location of mid
      nw :: Pt
@@ -149,17 +144,13 @@ mkPolyhedron1 (tangle, tanglePts) =
               <> mkSpline False (init botRes)
               <> mkSpline False (tail botRes)
               -- TODO: put curved spline back; this is a hack
+              -- right now it just connects things with 2 straight lines
               -- <> mkSpline False (topPts tanglePts)
               -- <> mkSpline False (bottomPts tanglePts)
 
 ---
 
 -- Draw the 1 crossing (not -1)
-
--- node :: Int -> Diagram B
--- node n = text (show n) # fontSizeL 0.2 # fc white
---       <> circle 0.1 # fc green # named n
-
 -- crossing :: Int -> Diagram B
 -- crossing n = atPoints (trailVertices $ regPoly n 1) (map node [1..n])
 --   # connectOutside (1 :: Int) (3 :: Int) # connectOutside (2 :: Int) (4 :: Int)
@@ -169,7 +160,6 @@ r90 = rotateBy (1/4)
 r180 = rotateBy (1/2)
 gap' = 0.35
 
--- lol sorry
 -- crossing length
 clen = sqrt 2 / 2
 
@@ -237,6 +227,7 @@ mapCorners transform' tc =
              midX = (fst nw' + fst ne') / 2,
              midY = (snd nw' + snd sw') / 2 }
 
+-- Tangle addition
 -- assuming that d2 is always rectangular; d1 might not be
 tangleAdd :: (Diagram B, TangleCorners) -> (Diagram B, TangleCorners)
           -> (Diagram B, TangleCorners)
@@ -269,6 +260,7 @@ tangleAdd (d1, c1) (d2, c2) =
           <> topAdd <> bottomAdd
           , coordsCombine)
 
+-- Tangle multiplication (calls tangle addition)
 tangleMult :: (Diagram B, TangleCorners) -> (Diagram B, TangleCorners)
           -> (Diagram B, TangleCorners)
 tangleMult (d1, coords1) (d2, coords2) =
@@ -295,7 +287,8 @@ drawTangleN tangle@(t:ts) =
             let twistAndMultiply acc n = tangleMult acc (twistSqH overcross n) in
             let tangleFinal = foldl twistAndMultiply (twistSqH overcross t) ts in
             let name = intersperse ' ' $ concatMap show tangle in
-            let knot = mkPolyhedron1 tangleFinal # lw 2.65 # pad 1.4 in
+            let knot = mkPolyhedron1 tangleFinal # lw 1.4 # pad 1.4 in
+            -- CHANGE THIS: lw = line width
             -- align text with bottom middle of diagram
             -- doesn't actually work, but leaving code in case I figure it out
             let bbox = boundingBox knot in
@@ -311,6 +304,7 @@ drawTangleN tangle@(t:ts) =
             -- let text_diag = text name # fontSizeL 2
             --      # font "freeserif" # pad 1.2 # centerX in
             -- position [(textp, text_diag), (kcenter, knot)]
+            -- Put the knot's notation somewhat near the knot (hard to align)
             (alignedText 1 1 name # fontSizeL 1.2
                  # font "freeserif" # pad 1.2 # centerX)
             === knot
@@ -332,9 +326,9 @@ partitionsUpTo n
  | otherwise = map (\x -> (x, partitions x)) [1..n]
 
 
-rawKnotsTo7Crossings :: Diagram B
-rawKnotsTo7Crossings =
-   let notations = partitionsUpTo 4 in
+rawKnotsToNCrossings :: Diagram B
+rawKnotsToNCrossings =
+   let notations = partitionsUpTo 7 in -- CHANGE THIS
    -- TODO break lines into fives and put "knots of n crossings" text
    -- let drawn = map (\(crossings, tangles) -> (crossings, map drawTangleN tangles))
    --             notations in
@@ -344,6 +338,7 @@ rawKnotsTo7Crossings =
 
 --------------
 
+-- unused
 testDiagram :: Diagram B
 testDiagram =
      (drawTangleN [1]
@@ -366,11 +361,11 @@ testDiagram =
      -- ||| drawTangleN [6, 6, 6, 6, 6, 6]
      ||| drawTangleN [1, 2, 3, 4, 5])
 
-   
+
 -- TODO monadically pass around coords
 -- TODO display tangle numbers, enumerate all
 -- TODO confirm that this is right
 -- TODO crossings rendered badly when img too large
 -- TODO fix forking at intersections
 -- TODO get rid of whitespace and use proportional LW
-main = mainWith $ rawKnotsTo7Crossings # centerXY # pad 1.01
+main = mainWith $ rawKnotsToNCrossings # centerXY # pad 1.01

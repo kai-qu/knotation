@@ -6,5 +6,4 @@
 *.o
 knot
 .#*
-*.svg
 *.pdf
